@@ -1,0 +1,22 @@
+# Datadog
+.env
+*.tfstate
+*.tfstate.backup
+.terraform/
+terraform.tfvars
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+*.log
+
+# Terraform
+.terraform.lock.hcl
