@@ -1,0 +1,1 @@
+# Module variables are defined in main.tf
