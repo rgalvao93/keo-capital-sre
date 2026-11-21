@@ -1,17 +1,10 @@
-resource "datadog_monitor" "this" {
-  name    = var.name
-  type    = var.type
-  query   = var.query
-  message = var.message
-
-  thresholds = var.thresholds
-
-  tags = var.tags
-
-  notify_no_data    = var.notify_no_data
-  no_data_timeframe = var.no_data_timeframe
-  renotify_interval = var.renotify_interval
-  timeout_h         = var.timeout_h
+terraform {
+  required_providers {
+    datadog = {
+      source  = "DataDog/datadog"
+      version = "~> 3.0"
+    }
+  }
 }
 
 variable "name" {
@@ -34,10 +27,16 @@ variable "message" {
   type        = string
 }
 
-variable "thresholds" {
-  description = "Monitor thresholds"
-  type        = map(number)
-  default     = {}
+variable "threshold_critical" {
+  description = "Critical threshold"
+  type        = number
+  default     = null
+}
+
+variable "threshold_warning" {
+  description = "Warning threshold"
+  type        = number
+  default     = null
 }
 
 variable "tags" {
@@ -68,4 +67,33 @@ variable "timeout_h" {
   description = "Timeout in hours"
   type        = number
   default     = 0
+}
+
+resource "datadog_monitor" "this" {
+  name    = var.name
+  type    = var.type
+  query   = var.query
+  message = var.message
+
+  monitor_thresholds {
+    critical = var.threshold_critical
+    warning  = var.threshold_warning
+  }
+
+  tags = var.tags
+
+  notify_no_data    = var.notify_no_data
+  no_data_timeframe = var.no_data_timeframe
+  renotify_interval = var.renotify_interval
+  timeout_h         = var.timeout_h
+}
+
+output "monitor_id" {
+  description = "The ID of the created monitor"
+  value       = datadog_monitor.this.id
+}
+
+output "monitor_name" {
+  description = "The name of the created monitor"
+  value       = datadog_monitor.this.name
 }
