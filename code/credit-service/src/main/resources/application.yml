@@ -6,7 +6,7 @@ spring:
     name: credit-service
   data:
     mongodb:
-      uri: ${SPRING_DATA_MONGODB_URI:mongodb://keo:keo123@localhost:27017/keo-capital}
+      uri: ${SPRING_DATA_MONGODB_URI:mongodb://mongodb:27017/keo-capital}
   kafka:
     bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
     producer:
@@ -18,6 +18,15 @@ management:
     web:
       exposure:
         include: health,info,metrics,prometheus
+  metrics:
+    export:
+      datadog:
+        enabled: true
+        api-key: 83110229896b20a2d6b8dfe739a912af
+        step: 10s
+    tags:
+      service: credit-service
+      env: ${DD_ENV:dev}
 
 logging:
   level:

@@ -30,4 +30,9 @@ public class BlockchainController {
     public ResponseEntity<Map<String, String>> health() {
         return ResponseEntity.ok(Map.of("status", "UP", "service", "blockchain-mock"));
     }
+
+    @GetMapping("/blockchain/health")
+    public ResponseEntity<Map<String, String>> blockchainHealth() {
+        return ResponseEntity.ok(Map.of("status", "UP", "service", "blockchain-mock"));
+    }
 }

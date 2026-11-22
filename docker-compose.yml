@@ -89,6 +89,7 @@ services:
       SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:29092
       SPRING_REDIS_HOST: redis
       DD_AGENT_HOST: datadog-agent
+      DD_API_KEY: ${DD_API_KEY}
       DD_SERVICE: payment-api
       DD_ENV: dev
       DD_VERSION: 1.0.0
@@ -115,6 +116,7 @@ services:
       SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:29092
       SPRING_REDIS_HOST: redis
       DD_AGENT_HOST: datadog-agent
+      DD_API_KEY: ${DD_API_KEY}
       DD_SERVICE: credit-service
       DD_ENV: dev
       DD_VERSION: 1.0.0
@@ -141,6 +143,7 @@ services:
       SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:29092
       SPRING_REDIS_HOST: redis
       DD_AGENT_HOST: datadog-agent
+      DD_API_KEY: ${DD_API_KEY}
       DD_SERVICE: travel-card-service
       DD_ENV: dev
       DD_VERSION: 1.0.0
@@ -167,6 +170,7 @@ services:
       SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:29092
       SPRING_REDIS_HOST: redis
       DD_AGENT_HOST: datadog-agent
+      DD_API_KEY: ${DD_API_KEY}
       DD_SERVICE: cross-border-fx
       DD_ENV: dev
       DD_VERSION: 1.0.0
@@ -191,6 +195,7 @@ services:
     environment:
       SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:29092
       DD_AGENT_HOST: datadog-agent
+      DD_API_KEY: ${DD_API_KEY}
       DD_SERVICE: blockchain-mock
       DD_ENV: dev
       DD_VERSION: 1.0.0
@@ -214,6 +219,7 @@ services:
       TRAVEL_CARD_SERVICE_URL: http://travel-card-service:8082
       CROSS_BORDER_FX_URL: http://cross-border-fx:8083
       DD_AGENT_HOST: datadog-agent
+      DD_API_KEY: ${DD_API_KEY}
       DD_SERVICE: traffic-simulator
       DD_ENV: dev
       DD_VERSION: 1.0.0

@@ -44,4 +44,9 @@ public class TravelCardController {
     public ResponseEntity<Map<String, String>> health() {
         return ResponseEntity.ok(Map.of("status", "UP", "service", "travel-card-service"));
     }
+
+    @GetMapping("/travel/health")
+    public ResponseEntity<Map<String, String>> travelHealth() {
+        return ResponseEntity.ok(Map.of("status", "UP", "service", "travel-card-service"));
+    }
 }
