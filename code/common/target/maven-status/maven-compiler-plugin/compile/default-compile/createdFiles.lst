@@ -1,0 +1,6 @@
+com/keocapital/common/model/Transaction$TransactionBuilder.class
+com/keocapital/common/model/CreditApplication.class
+com/keocapital/common/model/Card$CardBuilder.class
+com/keocapital/common/model/Card.class
+com/keocapital/common/model/CreditApplication$CreditApplicationBuilder.class
+com/keocapital/common/model/Transaction.class

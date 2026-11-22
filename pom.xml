@@ -20,13 +20,13 @@
     </parent>
 
     <modules>
-        <module>common</module>
-        <module>payment-api</module>
-        <module>credit-service</module>
-        <module>travel-card-service</module>
-        <module>cross-border-fx</module>
-        <module>blockchain-mock</module>
-        <module>traffic-simulator</module>
+        <module>code/common</module>
+        <module>code/payment-api</module>
+        <module>code/credit-service</module>
+        <module>code/travel-card-service</module>
+        <module>code/cross-border-fx</module>
+        <module>code/blockchain-mock</module>
+        <module>code/traffic-simulator</module>
     </modules>
 
     <properties>
