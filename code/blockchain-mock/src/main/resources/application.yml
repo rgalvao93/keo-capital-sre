@@ -22,7 +22,7 @@ management:
     export:
       datadog:
         enabled: true
-        api-key: 83110229896b20a2d6b8dfe739a912af
+        api-key: ${DD_API_KEY:}
         step: 10s
     tags:
       service: blockchain-mock
