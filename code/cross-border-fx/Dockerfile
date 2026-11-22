@@ -1,8 +1,7 @@
-FROM eclipse-temurin:21-jdk-alpine AS builder
+FROM maven:3.9-eclipse-temurin-21 AS builder
 WORKDIR /app
 COPY pom.xml .
-COPY code/common code/common
-COPY code/cross-border-fx code/cross-border-fx
+COPY code code
 RUN mvn clean package -pl code/cross-border-fx -am -DskipTests
 
 FROM eclipse-temurin:21-jre-alpine
