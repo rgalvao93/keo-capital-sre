@@ -8,8 +8,6 @@ services:
     ports:
       - "27017:27017"
     environment:
-      MONGO_INITDB_ROOT_USERNAME: keo
-      MONGO_INITDB_ROOT_PASSWORD: keo123
       MONGO_INITDB_DATABASE: keo-capital
     volumes:
       - mongodb_data:/data/db
@@ -78,12 +76,16 @@ services:
 
   # Payment API
   payment-api:
-    build: ./code/payment-api
+    build:
+      context: .
+      dockerfile: code/payment-api/Dockerfile
     container_name: keo-payment-api
+    volumes:
+      - ./dd-java-agent.jar:/app/dd-java-agent.jar:ro
     ports:
       - "8080:8080"
     environment:
-      SPRING_DATA_MONGODB_URI: mongodb://keo:keo123@mongodb:27017/keo-capital
+      SPRING_DATA_MONGODB_URI: mongodb://mongodb:27017/keo-capital
       SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:29092
       SPRING_REDIS_HOST: redis
       DD_AGENT_HOST: datadog-agent
@@ -100,12 +102,16 @@ services:
 
   # Credit Service
   credit-service:
-    build: ./code/credit-service
+    build:
+      context: .
+      dockerfile: code/credit-service/Dockerfile
     container_name: keo-credit-service
+    volumes:
+      - ./dd-java-agent.jar:/app/dd-java-agent.jar:ro
     ports:
       - "8081:8081"
     environment:
-      SPRING_DATA_MONGODB_URI: mongodb://keo:keo123@mongodb:27017/keo-capital
+      SPRING_DATA_MONGODB_URI: mongodb://mongodb:27017/keo-capital
       SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:29092
       SPRING_REDIS_HOST: redis
       DD_AGENT_HOST: datadog-agent
@@ -122,12 +128,16 @@ services:
 
   # Travel Card Service
   travel-card-service:
-    build: ./code/travel-card-service
+    build:
+      context: .
+      dockerfile: code/travel-card-service/Dockerfile
     container_name: keo-travel-card-service
+    volumes:
+      - ./dd-java-agent.jar:/app/dd-java-agent.jar:ro
     ports:
       - "8082:8082"
     environment:
-      SPRING_DATA_MONGODB_URI: mongodb://keo:keo123@mongodb:27017/keo-capital
+      SPRING_DATA_MONGODB_URI: mongodb://mongodb:27017/keo-capital
       SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:29092
       SPRING_REDIS_HOST: redis
       DD_AGENT_HOST: datadog-agent
@@ -144,12 +154,16 @@ services:
 
   # Cross-border FX Service
   cross-border-fx:
-    build: ./code/cross-border-fx
+    build:
+      context: .
+      dockerfile: code/cross-border-fx/Dockerfile
     container_name: keo-cross-border-fx
+    volumes:
+      - ./dd-java-agent.jar:/app/dd-java-agent.jar:ro
     ports:
       - "8083:8083"
     environment:
-      SPRING_DATA_MONGODB_URI: mongodb://keo:keo123@mongodb:27017/keo-capital
+      SPRING_DATA_MONGODB_URI: mongodb://mongodb:27017/keo-capital
       SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:29092
       SPRING_REDIS_HOST: redis
       DD_AGENT_HOST: datadog-agent
@@ -166,8 +180,12 @@ services:
 
   # Blockchain Mock Service
   blockchain-mock:
-    build: ./code/blockchain-mock
+    build:
+      context: .
+      dockerfile: code/blockchain-mock/Dockerfile
     container_name: keo-blockchain-mock
+    volumes:
+      - ./dd-java-agent.jar:/app/dd-java-agent.jar:ro
     ports:
       - "8084:8084"
     environment:
@@ -184,8 +202,12 @@ services:
 
   # Traffic Simulator
   traffic-simulator:
-    build: ./code/traffic-simulator
+    build:
+      context: .
+      dockerfile: code/traffic-simulator/Dockerfile
     container_name: keo-traffic-simulator
+    volumes:
+      - ./dd-java-agent.jar:/app/dd-java-agent.jar:ro
     environment:
       PAYMENT_API_URL: http://payment-api:8080
       CREDIT_SERVICE_URL: http://credit-service:8081
