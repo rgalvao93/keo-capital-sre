@@ -132,6 +132,49 @@ product:workeo|keo-travel|cross-border|supplier-payments
 
 ---
 
+## 🚀 Como Rodar (Build, Testes e CI/CD)
+
+### Pré-requisitos
+- JDK 21
+- Maven 3.9+
+- Docker (para docker-compose e Testcontainers)
+
+### Build e testes
+```bash
+# Compilar todo o projeto
+mvn -B clean compile
+
+# Rodar testes unitários
+mvn -B clean test
+
+# Build completo (compile + test + package)
+mvn -B clean verify
+```
+
+### Docker Compose
+```bash
+docker compose up -d
+```
+
+### CI/CD
+Os workflows estão em `.github/workflows/`:
+- `ci.yml` — build, testes, build de imagens Docker e Terraform plan.
+- `deploy.yml` — build/push de imagens e deploy via docker-compose.
+- `terraform.yml` — Terraform apply para Datadog.
+
+### Estrutura do repositório (atualizada)
+```
+keo-capital-sre/
+├── code/            # microserviços (Spring Boot)
+├── monitors/        # definições de monitors Datadog
+├── runbooks/        # runbooks operacionais
+├── docs/            # documentação
+├── terraform/       # IaC Datadog
+└── .github/workflows/  # CI/CD
+```
+
+---
+
 ## 👤 Autor
 
 Rodrigo Galvão — SRE @ Keo Capital
