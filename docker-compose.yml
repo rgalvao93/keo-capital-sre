@@ -1,0 +1,212 @@
+version: '3.8'
+
+services:
+  # MongoDB
+  mongodb:
+    image: mongo:7.0
+    container_name: keo-mongodb
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: keo
+      MONGO_INITDB_ROOT_PASSWORD: keo123
+      MONGO_INITDB_DATABASE: keo-capital
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - keo-network
+
+  # Kafka
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.5.0
+    container_name: keo-zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    networks:
+      - keo-network
+
+  kafka:
+    image: confluentinc/cp-kafka:7.5.0
+    container_name: keo-kafka
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+    networks:
+      - keo-network
+
+  # Redis
+  redis:
+    image: redis:7.2-alpine
+    container_name: keo-redis
+    ports:
+      - "6379:6379"
+    networks:
+      - keo-network
+
+  # Datadog Agent
+  datadog-agent:
+    image: gcr.io/datadoghq/agent:7
+    container_name: keo-datadog-agent
+    environment:
+      DD_API_KEY: ${DD_API_KEY}
+      DD_SITE: datadoghq.com
+      DD_LOGS_ENABLED: "true"
+      DD_LOGS_CONFIG_CONTAINER_COLLECT_ALL: "true"
+      DD_PROCESS_AGENT_ENABLED: "true"
+      DD_APM_ENABLED: "true"
+      DD_APM_NON_LOCAL_TRAFFIC: "true"
+      DD_DOGSTATSD_NON_LOCAL_TRAFFIC: "true"
+    ports:
+      - "8126:8126"  # APM
+      - "8125:8125/udp"  # DogStatsD
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /proc/:/host/proc/:ro
+      - /sys/fs/cgroup/:/host/sys/fs/cgroup:ro
+    networks:
+      - keo-network
+
+  # Payment API
+  payment-api:
+    build: ./code/payment-api
+    container_name: keo-payment-api
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATA_MONGODB_URI: mongodb://keo:keo123@mongodb:27017/keo-capital
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+      SPRING_REDIS_HOST: redis
+      DD_AGENT_HOST: datadog-agent
+      DD_SERVICE: payment-api
+      DD_ENV: dev
+      DD_VERSION: 1.0.0
+    depends_on:
+      - mongodb
+      - kafka
+      - redis
+      - datadog-agent
+    networks:
+      - keo-network
+
+  # Credit Service
+  credit-service:
+    build: ./code/credit-service
+    container_name: keo-credit-service
+    ports:
+      - "8081:8081"
+    environment:
+      SPRING_DATA_MONGODB_URI: mongodb://keo:keo123@mongodb:27017/keo-capital
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+      SPRING_REDIS_HOST: redis
+      DD_AGENT_HOST: datadog-agent
+      DD_SERVICE: credit-service
+      DD_ENV: dev
+      DD_VERSION: 1.0.0
+    depends_on:
+      - mongodb
+      - kafka
+      - redis
+      - datadog-agent
+    networks:
+      - keo-network
+
+  # Travel Card Service
+  travel-card-service:
+    build: ./code/travel-card-service
+    container_name: keo-travel-card-service
+    ports:
+      - "8082:8082"
+    environment:
+      SPRING_DATA_MONGODB_URI: mongodb://keo:keo123@mongodb:27017/keo-capital
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+      SPRING_REDIS_HOST: redis
+      DD_AGENT_HOST: datadog-agent
+      DD_SERVICE: travel-card-service
+      DD_ENV: dev
+      DD_VERSION: 1.0.0
+    depends_on:
+      - mongodb
+      - kafka
+      - redis
+      - datadog-agent
+    networks:
+      - keo-network
+
+  # Cross-border FX Service
+  cross-border-fx:
+    build: ./code/cross-border-fx
+    container_name: keo-cross-border-fx
+    ports:
+      - "8083:8083"
+    environment:
+      SPRING_DATA_MONGODB_URI: mongodb://keo:keo123@mongodb:27017/keo-capital
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+      SPRING_REDIS_HOST: redis
+      DD_AGENT_HOST: datadog-agent
+      DD_SERVICE: cross-border-fx
+      DD_ENV: dev
+      DD_VERSION: 1.0.0
+    depends_on:
+      - mongodb
+      - kafka
+      - redis
+      - datadog-agent
+    networks:
+      - keo-network
+
+  # Blockchain Mock Service
+  blockchain-mock:
+    build: ./code/blockchain-mock
+    container_name: keo-blockchain-mock
+    ports:
+      - "8084:8084"
+    environment:
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+      DD_AGENT_HOST: datadog-agent
+      DD_SERVICE: blockchain-mock
+      DD_ENV: dev
+      DD_VERSION: 1.0.0
+    depends_on:
+      - kafka
+      - datadog-agent
+    networks:
+      - keo-network
+
+  # Traffic Simulator
+  traffic-simulator:
+    build: ./code/traffic-simulator
+    container_name: keo-traffic-simulator
+    environment:
+      PAYMENT_API_URL: http://payment-api:8080
+      CREDIT_SERVICE_URL: http://credit-service:8081
+      TRAVEL_CARD_SERVICE_URL: http://travel-card-service:8082
+      CROSS_BORDER_FX_URL: http://cross-border-fx:8083
+      DD_AGENT_HOST: datadog-agent
+      DD_SERVICE: traffic-simulator
+      DD_ENV: dev
+      DD_VERSION: 1.0.0
+    depends_on:
+      - payment-api
+      - credit-service
+      - travel-card-service
+      - cross-border-fx
+      - datadog-agent
+    networks:
+      - keo-network
+
+volumes:
+  mongodb_data:
+
+networks:
+  keo-network:
+    driver: bridge
