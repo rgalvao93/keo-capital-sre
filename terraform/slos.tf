@@ -1,0 +1,101 @@
+# Service Level Objectives (SLOs) — Keo Capital
+# Monitor-based SLOs derived from the business and external-dependency monitors.
+# Reference: docs/slos/slos.md
+
+resource "datadog_service_level_objective" "card_auth_success_rate" {
+  name        = "Card Authorization Success Rate"
+  type        = "monitor"
+  description = "Percentual de autorizações de cartão concluídas com sucesso (SLO 99.5% em 30 dias)."
+  monitor_ids = [module.card_auth_success_rate.monitor_id]
+  tags        = ["service:payment-api", "team:payments", "product:keo-travel", "slo:card-authorization"]
+
+  thresholds {
+    timeframe = "30d"
+    target    = 99.5
+    warning   = 99.0
+  }
+}
+
+resource "datadog_service_level_objective" "payment_service_availability" {
+  name        = "Payment Service Availability"
+  type        = "monitor"
+  description = "Disponibilidade do serviço de pagamentos (SLO 99.9% em 30 dias)."
+  monitor_ids = [module.payment_service_availability.monitor_id]
+  tags        = ["service:payment-api", "team:payments", "slo:availability"]
+
+  thresholds {
+    timeframe = "30d"
+    target    = 99.9
+    warning   = 99.5
+  }
+}
+
+resource "datadog_service_level_objective" "workeo_disbursement_latency" {
+  name        = "Workeo Working Capital Disbursement Latency"
+  type        = "monitor"
+  description = "Tempo de processamento de working capital P95 abaixo de 5s (SLO 99.0% em 30 dias)."
+  monitor_ids = [module.workeo_disbursement_latency.monitor_id]
+  tags        = ["service:credit-service", "team:credit", "product:workeo", "slo:disbursement-latency"]
+
+  thresholds {
+    timeframe = "30d"
+    target    = 99.0
+    warning   = 98.0
+  }
+}
+
+resource "datadog_service_level_objective" "keo_travel_card_creation_latency" {
+  name        = "Keo Travel Card Creation Latency"
+  type        = "monitor"
+  description = "Tempo de criação de cartão virtual Keo Travel P95 abaixo de 3s (SLO 99.5% em 30 dias)."
+  monitor_ids = [module.keo_travel_card_creation_latency.monitor_id]
+  tags        = ["service:travel-card-service", "team:travel", "product:keo-travel", "slo:card-creation-latency"]
+
+  thresholds {
+    timeframe = "30d"
+    target    = 99.5
+    warning   = 99.0
+  }
+}
+
+resource "datadog_service_level_objective" "crossborder_transaction_success_rate" {
+  name        = "Cross-border Transaction Success Rate"
+  type        = "monitor"
+  description = "Taxa de sucesso de transações cross-border (SLO 99.0% em 30 dias)."
+  monitor_ids = [module.crossborder_transaction_success_rate.monitor_id]
+  tags        = ["service:cross-border-fx", "team:payments", "product:cross-border", "slo:cross-border-success"]
+
+  thresholds {
+    timeframe = "30d"
+    target    = 99.0
+    warning   = 98.5
+  }
+}
+
+resource "datadog_service_level_objective" "mastercard_availability" {
+  name        = "Mastercard Network Availability"
+  type        = "monitor"
+  description = "Disponibilidade da rede Mastercard (SLO 99.9% em 30 dias)."
+  monitor_ids = [module.mastercard_availability.monitor_id]
+  tags        = ["service:mastercard", "team:payments", "external:mastercard", "slo:external-availability"]
+
+  thresholds {
+    timeframe = "30d"
+    target    = 99.9
+    warning   = 99.5
+  }
+}
+
+resource "datadog_service_level_objective" "bank_availability" {
+  name        = "Partner Bank Availability"
+  type        = "monitor"
+  description = "Disponibilidade dos bancos parceiros para disbursement (SLO 99.5% em 30 dias)."
+  monitor_ids = [module.bank_availability.monitor_id]
+  tags        = ["service:credit-service", "team:credit", "external:bank", "slo:external-availability"]
+
+  thresholds {
+    timeframe = "30d"
+    target    = 99.5
+    warning   = 99.0
+  }
+}

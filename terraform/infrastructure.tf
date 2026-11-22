@@ -9,7 +9,7 @@ module "cpu_utilization_p95" {
   message = "CPU utilization P95 acima de 80%. Verificar pods e escalar se necessário. @slack-alerts-infra"
 
   threshold_critical = 80
-  threshold_warning = 70
+  threshold_warning  = 70
 
   tags = ["env:prod", "team:sre", "severity:medium"]
 }
@@ -23,7 +23,7 @@ module "memory_utilization_p95" {
   message = "Memory utilization P95 acima de 85%. Verificar pods e escalar se necessário. @slack-alerts-infra"
 
   threshold_critical = 85
-  threshold_warning = 75
+  threshold_warning  = 75
 
   tags = ["env:prod", "team:sre", "severity:medium"]
 }
@@ -37,7 +37,7 @@ module "disk_utilization" {
   message = "Disk utilization acima de 90%. Verificar espaço em disco e limpar logs/imagens antigas. @slack-alerts-infra"
 
   threshold_critical = 90
-  threshold_warning = 80
+  threshold_warning  = 80
 
   tags = ["env:prod", "team:sre", "severity:medium"]
 }
@@ -51,9 +51,34 @@ module "network_latency_inter_service" {
   message = "Latência de rede inter-serviço acima de 50ms. Verificar service mesh e rede. @slack-alerts-infra"
 
   threshold_critical = 50
-  threshold_warning = 30
+  threshold_warning  = 30
 
   tags = ["env:prod", "team:sre", "severity:medium"]
+}
+
+module "datadog_cost_anomaly" {
+  source = "./modules/monitor"
+
+  name    = "Datadog Cost Anomaly - Custom Metrics - Keo Capital"
+  type    = "metric alert"
+  query   = "avg(last_1d):avg:datadog.estimated_usage.custom_metrics{*} > 100000"
+  message = "Uso estimado de custom metrics acima do esperado. Revisar cardinalidade de métricas e tags. @slack-alerts-sre"
+
+  threshold_critical = 100000
+  threshold_warning  = 80000
+
+  tags = ["env:prod", "team:sre", "compliance:finops", "severity:medium"]
+}
+
+module "host_availability" {
+  source = "./modules/monitor"
+
+  name    = "Host/Container Availability - Keo Capital"
+  type    = "host"
+  query   = "avg(last_5m):avg:system.uptime{*} < 1"
+  message = "Host/container offline detectado. Verificar infraestrutura e escalar se necessário. @slack-alerts-infra @pagerduty-sre"
+
+  tags = ["env:prod", "team:sre", "severity:critical"]
 }
 
 module "error_rate_5xx_infra" {
@@ -65,7 +90,7 @@ module "error_rate_5xx_infra" {
   message = "Error rate 5xx acima de 0.1%. Verificar logs de erro e infraestrutura. @slack-alerts-infra @pagerduty-sre"
 
   threshold_critical = 0.001
-  threshold_warning = 0.0005
+  threshold_warning  = 0.0005
 
   tags = ["env:prod", "team:sre", "severity:high"]
 }

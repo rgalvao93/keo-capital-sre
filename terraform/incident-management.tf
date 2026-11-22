@@ -9,7 +9,7 @@ module "mttr_sev1" {
   message = "MTTR de incidentes SEV-1 acima de 30 minutos. Revisar processo de resposta a incidentes. @slack-alerts-sre"
 
   threshold_critical = 1800
-  threshold_warning = 1500
+  threshold_warning  = 1500
 
   tags = ["team:sre", "severity:high"]
 }
@@ -23,7 +23,7 @@ module "mttd" {
   message = "MTTD acima de 5 minutos. Melhorar cobertura de monitors e alertas. @slack-alerts-sre"
 
   threshold_critical = 300
-  threshold_warning = 240
+  threshold_warning  = 240
 
   tags = ["team:sre", "severity:high"]
 }
@@ -37,7 +37,7 @@ module "alert_fatigue" {
   message = "Taxa de falsos positivos acima de 10%. Revisar thresholds dos monitors. @slack-alerts-sre"
 
   threshold_critical = 0.1
-  threshold_warning = 0.08
+  threshold_warning  = 0.08
 
   tags = ["team:sre", "severity:medium"]
 }

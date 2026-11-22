@@ -75,9 +75,12 @@ resource "datadog_monitor" "this" {
   query   = var.query
   message = var.message
 
-  monitor_thresholds {
-    critical = var.threshold_critical
-    warning  = var.threshold_warning
+  dynamic "monitor_thresholds" {
+    for_each = var.threshold_critical != null ? [1] : []
+    content {
+      critical = var.threshold_critical
+      warning  = var.threshold_warning
+    }
   }
 
   tags = var.tags

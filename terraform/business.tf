@@ -10,7 +10,7 @@ module "card_auth_success_rate" {
   message = "Taxa de sucesso de autorização de cartão abaixo de 99.5%. Verificar integração com Mastercard e infraestrutura. @slack-alerts-payments @pagerduty-sre"
 
   threshold_critical = 99.5
-  threshold_warning  = 99.6
+  threshold_warning  = 99.0
 
   tags = ["service:payment-api", "team:payments", "product:keo-travel,cross-border", "severity:critical"]
 }
@@ -38,7 +38,7 @@ module "payment_service_availability" {
   message = "Disponibilidade do serviço de pagamentos abaixo de 99.9%. Incidente crítico! Verificar infraestrutura e dependências. @slack-alerts-payments @pagerduty-sre"
 
   threshold_critical = 99.9
-  threshold_warning  = 99.95
+  threshold_warning  = 99.5
 
   tags = ["service:payment-api", "team:payments", "severity:critical"]
 }

@@ -10,7 +10,7 @@ module "payment_api_latency_p99" {
   message = "Latência P99 do payment-api acima de 500ms. Verificar traces no Datadog APM. @slack-alerts-payments @pagerduty-sre"
 
   threshold_critical = 500
-  threshold_warning = 400
+  threshold_warning  = 400
 
   tags = ["service:payment-api", "team:payments", "severity:high"]
 }
@@ -24,7 +24,7 @@ module "payment_api_error_rate" {
   message = "Taxa de erro do payment-api acima de 1%. Verificar logs de erro no Datadog. @slack-alerts-payments @pagerduty-sre"
 
   threshold_critical = 0.01
-  threshold_warning = 0.005
+  threshold_warning  = 0.005
 
   tags = ["service:payment-api", "team:payments", "severity:high"]
 }
@@ -38,7 +38,7 @@ module "payment_api_db_latency" {
   message = "Latência de queries PostgreSQL do payment-api acima de 100ms. Verificar queries lentas no Datadog DBM. @slack-alerts-payments"
 
   threshold_critical = 100
-  threshold_warning = 80
+  threshold_warning  = 80
 
   tags = ["service:payment-api", "team:payments", "severity:medium"]
 }
@@ -52,7 +52,7 @@ module "payment_api_redis_hit_rate" {
   message = "Cache hit rate do Redis do payment-api abaixo de 80%. Verificar TTL e padrões de acesso. @slack-alerts-payments"
 
   threshold_critical = 0.8
-  threshold_warning = 0.85
+  threshold_warning  = 0.85
 
   tags = ["service:payment-api", "team:payments", "severity:medium"]
 }
@@ -77,7 +77,7 @@ module "credit_service_latency_p99" {
   message = "Latência P99 do credit-service acima de 1s. Verificar traces no Datadog APM. @slack-alerts-credit @pagerduty-sre"
 
   threshold_critical = 1000
-  threshold_warning = 800
+  threshold_warning  = 800
 
   tags = ["service:credit-service", "team:credit", "severity:high"]
 }
@@ -91,7 +91,7 @@ module "credit_service_error_rate" {
   message = "Taxa de erro do credit-service acima de 1%. Verificar logs de erro no Datadog. @slack-alerts-credit @pagerduty-sre"
 
   threshold_critical = 0.01
-  threshold_warning = 0.005
+  threshold_warning  = 0.005
 
   tags = ["service:credit-service", "team:credit", "severity:high"]
 }
@@ -105,7 +105,7 @@ module "travel_card_service_latency_p99" {
   message = "Latência P99 do travel-card-service acima de 500ms. Verificar traces no Datadog APM. @slack-alerts-travel @pagerduty-sre"
 
   threshold_critical = 500
-  threshold_warning = 400
+  threshold_warning  = 400
 
   tags = ["service:travel-card-service", "team:travel", "severity:high"]
 }
@@ -119,7 +119,7 @@ module "travel_card_service_error_rate" {
   message = "Taxa de erro do travel-card-service acima de 1%. Verificar logs de erro no Datadog. @slack-alerts-travel @pagerduty-sre"
 
   threshold_critical = 0.01
-  threshold_warning = 0.005
+  threshold_warning  = 0.005
 
   tags = ["service:travel-card-service", "team:travel", "severity:high"]
 }
@@ -133,7 +133,7 @@ module "crossborder_fx_latency_p99" {
   message = "Latência P99 do cross-border-fx acima de 1s. Verificar traces no Datadog APM. @slack-alerts-payments @pagerduty-sre"
 
   threshold_critical = 1000
-  threshold_warning = 800
+  threshold_warning  = 800
 
   tags = ["service:cross-border-fx", "team:payments", "severity:high"]
 }
@@ -147,7 +147,7 @@ module "crossborder_fx_error_rate_app" {
   message = "Taxa de erro do cross-border-fx acima de 1%. Verificar logs de erro no Datadog. @slack-alerts-payments @pagerduty-sre"
 
   threshold_critical = 0.01
-  threshold_warning = 0.005
+  threshold_warning  = 0.005
 
   tags = ["service:cross-border-fx", "team:payments", "severity:high"]
 }

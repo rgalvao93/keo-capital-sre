@@ -74,36 +74,36 @@ resource "datadog_dashboard_json" "slo_compliance" {
     widgets = [
       {
         definition = {
-          type  = "query_value"
-          title = "Card Auth Success Rate"
+          type     = "query_value"
+          title    = "Card Auth Success Rate"
           requests = [{ q = "avg:keo.payments.authorization.success_rate{*}" }]
         }
       },
       {
         definition = {
-          type  = "query_value"
-          title = "Payment Service Availability"
+          type     = "query_value"
+          title    = "Payment Service Availability"
           requests = [{ q = "avg:keo.payments.service.success_rate{*}" }]
         }
       },
       {
         definition = {
-          type  = "query_value"
-          title = "Workeo Disbursement Latency P95"
+          type     = "query_value"
+          title    = "Workeo Disbursement Latency P95"
           requests = [{ q = "p95:keo.working_capital.disbursement.latency{*}" }]
         }
       },
       {
         definition = {
-          type  = "query_value"
-          title = "Keo Travel Card Creation P95"
+          type     = "query_value"
+          title    = "Keo Travel Card Creation P95"
           requests = [{ q = "p95:keo.travel.card_creation.latency{*}" }]
         }
       },
       {
         definition = {
-          type  = "query_value"
-          title = "Cross-border Success Rate"
+          type     = "query_value"
+          title    = "Cross-border Success Rate"
           requests = [{ q = "avg:keo.crossborder.transaction.success_rate{*}" }]
         }
       }

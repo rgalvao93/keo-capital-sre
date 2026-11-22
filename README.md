@@ -57,6 +57,68 @@ O projeto está organizado em 7 camadas de abstração, do mais baixo nível (in
 
 ---
 
+### Arquitetura (visão geral)
+
+```mermaid
+flowchart TB
+    subgraph Clients["Clientes B2B"]
+        C1[Workeo]
+        C2[Keo Travel]
+        C3[Supplier Payments]
+        C4[Cross-border]
+    end
+
+    subgraph Services["Microserviços"]
+        PA[payment-api]
+        CS[credit-service]
+        TC[travel-card-service]
+        CB[cross-border-fx]
+        BC[blockchain-mock]
+    end
+
+    subgraph Data["Dados e Mensageria"]
+        M[(MongoDB)]
+        K[Kafka]
+        R[(Redis)]
+    end
+
+    subgraph External["Dependências Externas"]
+        MC[Mastercard]
+        BK[Bancos Parceiros]
+        FX[Provedor FX]
+        KYC[KYC]
+    end
+
+    subgraph Obs["Observabilidade"]
+        DD[Datadog Agent]
+        MON[Monitors / SLOs]
+        DASH[Dashboards]
+        RB[Runbooks]
+        PD[PagerDuty / Slack / Jira]
+    end
+
+    C1 --> PA
+    C2 --> TC
+    C3 --> PA
+    C4 --> CB
+    PA --> M
+    PA --> K
+    PA --> R
+    CS --> M
+    CS --> K
+    TC --> M
+    CB --> M
+    BC --> K
+    PA --> MC
+    CS --> BK
+    CB --> FX
+    CS --> KYC
+    PA & CS & TC & CB & BC --> DD
+    DD --> MON --> DASH
+    MON --> PD
+    MON --> RB
+```
+
 ## 📁 Estrutura do Repositório
 
 ```
@@ -139,21 +201,36 @@ product:workeo|keo-travel|cross-border|supplier-payments
 - Maven 3.9+
 - Docker (para docker-compose e Testcontainers)
 
-### Build e testes
+### Configuração
 ```bash
-# Compilar todo o projeto
-mvn -B clean compile
+cp .env.example .env
+# edite .env com suas credenciais Datadog
+```
 
-# Rodar testes unitários
-mvn -B clean test
+### Build e testes (via Makefile)
+```bash
+make build      # compilar
+make test       # testes unitários
+make verify     # build completo (compile + test + package)
+```
 
-# Build completo (compile + test + package)
+Ou diretamente com Maven:
+```bash
 mvn -B clean verify
 ```
 
 ### Docker Compose
 ```bash
-docker compose up -d
+make up    # docker compose up -d
+make down  # docker compose down
+```
+
+### Terraform
+```bash
+make tf-init
+make tf-fmt
+make tf-validate
+make tf-plan
 ```
 
 ### CI/CD
