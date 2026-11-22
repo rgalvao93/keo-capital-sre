@@ -1,6 +1,9 @@
 package com.keocapital.payment.service;
 
 import com.keocapital.common.model.Transaction;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -18,6 +21,42 @@ public class PaymentService {
 
     private final MongoTemplate mongoTemplate;
     private final KafkaTemplate<String, Object> kafkaTemplate;
+    private final MeterRegistry meterRegistry;
+
+    private Counter authSuccessCounter;
+    private Counter authFailureCounter;
+    private Counter cardCreationSuccessCounter;
+    private Counter cardCreationFailureCounter;
+    private Counter paymentSuccessCounter;
+    private Counter paymentFailureCounter;
+
+    @PostConstruct
+    public void initMetrics() {
+        authSuccessCounter = Counter.builder("keo.payments.authorization.success")
+            .description("Card authorization success count")
+            .tag("service", "payment-api")
+            .register(meterRegistry);
+        authFailureCounter = Counter.builder("keo.payments.authorization.failure")
+            .description("Card authorization failure count")
+            .tag("service", "payment-api")
+            .register(meterRegistry);
+        cardCreationSuccessCounter = Counter.builder("keo.payments.card_creation.success")
+            .description("Card creation success count")
+            .tag("service", "payment-api")
+            .register(meterRegistry);
+        cardCreationFailureCounter = Counter.builder("keo.payments.card_creation.failure")
+            .description("Card creation failure count")
+            .tag("service", "payment-api")
+            .register(meterRegistry);
+        paymentSuccessCounter = Counter.builder("keo.payments.processing.success")
+            .description("Payment processing success count")
+            .tag("service", "payment-api")
+            .register(meterRegistry);
+        paymentFailureCounter = Counter.builder("keo.payments.processing.failure")
+            .description("Payment processing failure count")
+            .tag("service", "payment-api")
+            .register(meterRegistry);
+    }
 
     public Transaction authorizeCard(Map<String, Object> request) {
         long startTime = System.currentTimeMillis();
@@ -26,9 +65,8 @@ public class PaymentService {
         String product = (String) request.getOrDefault("product", "keo-travel");
         Double amount = ((Number) request.getOrDefault("amount", 100.0)).doubleValue();
 
-        // Simulate authorization (99.5% success rate)
         boolean success = Math.random() < 0.995;
-        long latency = (long) (50 + Math.random() * 200); // 50-250ms
+        long latency = (long) (50 + Math.random() * 200);
 
         Transaction transaction = Transaction.builder()
                 .id(UUID.randomUUID().toString())
@@ -48,6 +86,12 @@ public class PaymentService {
         mongoTemplate.save(transaction);
         kafkaTemplate.send("payment-events", transaction);
 
+        if (success) {
+            authSuccessCounter.increment();
+        } else {
+            authFailureCounter.increment();
+        }
+
         log.info("Card authorization: {} - {}ms - {}", transaction.getId(), latency, transaction.getStatus());
         return transaction;
     }
@@ -59,7 +103,7 @@ public class PaymentService {
         String product = (String) request.getOrDefault("product", "keo-travel");
 
         boolean success = Math.random() < 0.995;
-        long latency = (long) (100 + Math.random() * 200); // 100-300ms
+        long latency = (long) (100 + Math.random() * 200);
 
         Transaction transaction = Transaction.builder()
                 .id(UUID.randomUUID().toString())
@@ -79,6 +123,12 @@ public class PaymentService {
         mongoTemplate.save(transaction);
         kafkaTemplate.send("payment-events", transaction);
 
+        if (success) {
+            cardCreationSuccessCounter.increment();
+        } else {
+            cardCreationFailureCounter.increment();
+        }
+
         log.info("Card creation: {} - {}ms - {}", transaction.getId(), latency, transaction.getStatus());
         return transaction;
     }
@@ -94,7 +144,7 @@ public class PaymentService {
         Double amount = ((Number) request.getOrDefault("amount", 500.0)).doubleValue();
 
         boolean success = Math.random() < 0.99;
-        long latency = (long) (200 + Math.random() * 300); // 200-500ms
+        long latency = (long) (200 + Math.random() * 300);
 
         Transaction transaction = Transaction.builder()
                 .id(UUID.randomUUID().toString())
@@ -113,6 +163,12 @@ public class PaymentService {
 
         mongoTemplate.save(transaction);
         kafkaTemplate.send("payment-events", transaction);
+
+        if (success) {
+            paymentSuccessCounter.increment();
+        } else {
+            paymentFailureCounter.increment();
+        }
 
         log.info("Payment processing: {} - {}ms - {}", transaction.getId(), latency, transaction.getStatus());
         return transaction;

@@ -1,5 +1,8 @@
 package com.keocapital.blockchain.service;
 
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -15,6 +18,22 @@ import java.util.concurrent.ThreadLocalRandom;
 public class BlockchainService {
 
     private final KafkaTemplate<String, Object> kafkaTemplate;
+    private final MeterRegistry meterRegistry;
+
+    private Counter transactionSuccessCounter;
+    private Counter transactionFailureCounter;
+
+    @PostConstruct
+    public void initMetrics() {
+        transactionSuccessCounter = Counter.builder("keo.blockchain.transaction.success")
+            .description("Blockchain transaction success count")
+            .tag("service", "blockchain-mock")
+            .register(meterRegistry);
+        transactionFailureCounter = Counter.builder("keo.blockchain.transaction.failure")
+            .description("Blockchain transaction failure count")
+            .tag("service", "blockchain-mock")
+            .register(meterRegistry);
+    }
 
     public Map<String, Object> executeTransaction(Map<String, Object> request) {
         String txType = (String) request.getOrDefault("type", "PAYMENT");
@@ -22,7 +41,6 @@ public class BlockchainService {
         String from = (String) request.getOrDefault("from", "buyer");
         String to = (String) request.getOrDefault("to", "supplier");
 
-        // Simulate blockchain latency (50-200ms)
         long latency = ThreadLocalRandom.current().nextLong(50, 201);
         try {
             Thread.sleep(latency);
@@ -30,7 +48,6 @@ public class BlockchainService {
             Thread.currentThread().interrupt();
         }
 
-        // Simulate success rate (99.8% for blockchain)
         boolean success = Math.random() < 0.998;
         String txHash = "0x" + UUID.randomUUID().toString().replace("-", "");
 
@@ -48,13 +65,16 @@ public class BlockchainService {
         );
 
         kafkaTemplate.send("blockchain-events", result);
+
+        if (success) transactionSuccessCounter.increment();
+        else transactionFailureCounter.increment();
+
         log.info("Blockchain tx: {} - {} - {}ms", txHash, result.get("status"), latency);
 
         return result;
     }
 
     public Map<String, Object> getTransactionStatus(String txHash) {
-        // Simulate transaction lookup
         long latency = ThreadLocalRandom.current().nextLong(10, 50);
         try {
             Thread.sleep(latency);

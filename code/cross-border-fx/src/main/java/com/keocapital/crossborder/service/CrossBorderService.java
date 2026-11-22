@@ -1,6 +1,9 @@
 package com.keocapital.crossborder.service;
 
 import com.keocapital.common.model.Transaction;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.MeterRegistry;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -18,20 +21,47 @@ public class CrossBorderService {
 
     private final MongoTemplate mongoTemplate;
     private final KafkaTemplate<String, Object> kafkaTemplate;
+    private final MeterRegistry meterRegistry;
+
+    private Counter transactionSuccessCounter;
+    private Counter transactionFailureCounter;
+    private Counter fxSuccessCounter;
+    private Counter fxFailureCounter;
+
+    @PostConstruct
+    public void initMetrics() {
+        transactionSuccessCounter = Counter.builder("keo.crossborder.transaction.success")
+            .description("Cross-border transaction success count")
+            .tag("service", "cross-border-fx")
+            .register(meterRegistry);
+        transactionFailureCounter = Counter.builder("keo.crossborder.transaction.failure")
+            .description("Cross-border transaction failure count")
+            .tag("service", "cross-border-fx")
+            .register(meterRegistry);
+        fxSuccessCounter = Counter.builder("keo.crossborder.fx.success")
+            .description("FX conversion success count")
+            .tag("service", "cross-border-fx")
+            .register(meterRegistry);
+        fxFailureCounter = Counter.builder("keo.crossborder.fx.failure")
+            .description("FX conversion failure count")
+            .tag("service", "cross-border-fx")
+            .register(meterRegistry);
+    }
 
     public Map<String, Object> convertCurrency(Map<String, Object> request) {
         String from = (String) request.getOrDefault("from", "USD");
         String to = (String) request.getOrDefault("to", "BRL");
         Double amount = ((Number) request.getOrDefault("amount", 1000.0)).doubleValue();
 
-        // Simulate FX rate (with small variance)
         double baseRate = getBaseRate(from, to);
         double rate = baseRate * (0.995 + Math.random() * 0.01);
         double convertedAmount = amount * rate;
 
-        // Simulate latency
         long latency = (long) (50 + Math.random() * 100);
         boolean success = Math.random() < 0.995;
+
+        if (success) fxSuccessCounter.increment();
+        else fxFailureCounter.increment();
 
         Map<String, Object> result = Map.of(
             "from", from,
@@ -65,7 +95,7 @@ public class CrossBorderService {
         String currency = (String) request.getOrDefault("currency", "USD");
 
         boolean success = Math.random() < 0.99;
-        long latency = (long) (200 + Math.random() * 300); // 200-500ms
+        long latency = (long) (200 + Math.random() * 300);
 
         Transaction transaction = Transaction.builder()
                 .id(UUID.randomUUID().toString())
@@ -85,12 +115,14 @@ public class CrossBorderService {
         mongoTemplate.save(transaction);
         kafkaTemplate.send("crossborder-events", transaction);
 
+        if (success) transactionSuccessCounter.increment();
+        else transactionFailureCounter.increment();
+
         log.info("Cross-border transaction: {} - {}ms - {}", transaction.getId(), latency, transaction.getStatus());
         return transaction;
     }
 
     private double getBaseRate(String from, String to) {
-        // Simplified FX rates
         if (from.equals(to)) return 1.0;
         if (from.equals("USD") && to.equals("BRL")) return 5.0;
         if (from.equals("USD") && to.equals("CAD")) return 1.35;

@@ -60,11 +60,10 @@
             <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
 
-        <!-- Datadog APM -->
         <dependency>
-            <groupId>com.datadoghq</groupId>
-            <artifactId>dd-trace-api</artifactId>
-            <version>${dd-trace.version}</version>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-registry-datadog</artifactId>
+            <version>1.12.0</version>
         </dependency>
         <dependency>
             <groupId>com.datadoghq</groupId>
