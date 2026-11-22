@@ -20,7 +20,10 @@ jobs:
           cache: maven
 
       - name: Build and run tests
-        run: mvn -B clean verify -o 2>/dev/null || mvn -B clean verify
+        run: mvn -B clean verify
+
+      - name: Spotless format check
+        run: mvn -B spotless:check
 
       - name: Upload test reports
         if: always()
@@ -28,6 +31,22 @@ jobs:
         with:
           name: test-reports
           path: '**/target/surefire-reports/*.txt'
+
+      - name: Notify Datadog of CI result
+        if: always()
+        env:
+          DD_API_KEY: ${{ secrets.DD_API_KEY }}
+        run: |
+          STATUS="${{ job.status }}"
+          curl -s -X POST "https://api.datadoghq.com/api/v1/events" \
+            -H "Content-Type: application/json" \
+            -H "DD-API-KEY: ${DD_API_KEY}" \
+            -d "{
+              \"title\": \"CI pipeline ${STATUS}\",
+              \"text\": \"Build/test on ${{ github.ref }}. Commit: ${{ github.sha }}\",
+              \"tags\": [\"source:github-actions\",\"ci:${STATUS}\"],
+              \"alert_type\": \"${STATUS == 'success' && 'info' || 'error'}\"
+            }"
 
   terraform-validate:
     runs-on: ubuntu-latest

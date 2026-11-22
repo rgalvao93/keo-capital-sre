@@ -99,3 +99,96 @@ resource "datadog_service_level_objective" "bank_availability" {
     warning   = 99.0
   }
 }
+
+# --- Metric-based SLOs (numerator/denominator) ---
+# Reference: docs/slos/slos.md
+
+resource "datadog_service_level_objective" "card_auth_success_rate_metric" {
+  name        = "Card Authorization Success Rate (Metric-based)"
+  type        = "metric"
+  description = "Taxa de sucesso de autorização de cartão baseada em métricas (SLO 99.5% em 30 dias)."
+  tags        = ["service:payment-api", "team:payments", "product:keo-travel", "slo:card-authorization-metric"]
+
+  query {
+    numerator   = "sum:keo.payments.authorization.success{*}"
+    denominator = "sum:keo.payments.authorization.success{*} + sum:keo.payments.authorization.failure{*}"
+  }
+
+  thresholds {
+    timeframe = "30d"
+    target    = 99.5
+    warning   = 99.0
+  }
+}
+
+resource "datadog_service_level_objective" "payment_service_availability_metric" {
+  name        = "Payment Service Availability (Metric-based)"
+  type        = "metric"
+  description = "Disponibilidade do serviço de pagamentos baseada em métricas (SLO 99.9% em 30 dias)."
+  tags        = ["service:payment-api", "team:payments", "slo:availability-metric"]
+
+  query {
+    numerator   = "sum:keo.payments.processing.success{*}"
+    denominator = "sum:keo.payments.processing.success{*} + sum:keo.payments.processing.failure{*}"
+  }
+
+  thresholds {
+    timeframe = "30d"
+    target    = 99.9
+    warning   = 99.5
+  }
+}
+
+resource "datadog_service_level_objective" "crossborder_transaction_success_rate_metric" {
+  name        = "Cross-border Transaction Success Rate (Metric-based)"
+  type        = "metric"
+  description = "Taxa de sucesso de transações cross-border baseada em métricas (SLO 99.0% em 30 dias)."
+  tags        = ["service:cross-border-fx", "team:payments", "product:cross-border", "slo:cross-border-success-metric"]
+
+  query {
+    numerator   = "sum:keo.crossborder.transaction.success{*}"
+    denominator = "sum:keo.crossborder.transaction.success{*} + sum:keo.crossborder.transaction.failure{*}"
+  }
+
+  thresholds {
+    timeframe = "30d"
+    target    = 99.0
+    warning   = 98.5
+  }
+}
+
+resource "datadog_service_level_objective" "workeo_disbursement_success_rate_metric" {
+  name        = "Workeo Working Capital Disbursement Success Rate (Metric-based)"
+  type        = "metric"
+  description = "Taxa de sucesso de disbursement do Workeo baseada em métricas (SLO 99.0% em 30 dias)."
+  tags        = ["service:credit-service", "team:credit", "product:workeo", "slo:disbursement-success-metric"]
+
+  query {
+    numerator   = "sum:keo.working_capital.disbursement.success{*}"
+    denominator = "sum:keo.working_capital.disbursement.success{*} + sum:keo.working_capital.disbursement.failure{*}"
+  }
+
+  thresholds {
+    timeframe = "30d"
+    target    = 99.0
+    warning   = 98.0
+  }
+}
+
+resource "datadog_service_level_objective" "keo_travel_card_creation_success_rate_metric" {
+  name        = "Keo Travel Card Creation Success Rate (Metric-based)"
+  type        = "metric"
+  description = "Taxa de sucesso de criação de cartão Keo Travel baseada em métricas (SLO 99.5% em 30 dias)."
+  tags        = ["service:travel-card-service", "team:travel", "product:keo-travel", "slo:card-creation-success-metric"]
+
+  query {
+    numerator   = "sum:keo.travel.card_creation.success{*}"
+    denominator = "sum:keo.travel.card_creation.success{*} + sum:keo.travel.card_creation.failure{*}"
+  }
+
+  thresholds {
+    timeframe = "30d"
+    target    = 99.5
+    warning   = 99.0
+  }
+}

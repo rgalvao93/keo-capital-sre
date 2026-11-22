@@ -126,6 +126,33 @@ keo.payments.authorization.latency_p99 < 300
 
 ---
 
+## 8. Alertas de Burn Rate (Error Budget Consumption)
+
+### Conceito
+Burn rate mede a velocidade de consumo do error budget. Burn rate 1.0 = consumindo o budget exatamente no pace do SLO; burn rate 2.0 = consumindo 2x mais rápido que o permitido (esgotaria o budget em metade da janela).
+
+### Implementação
+Os alertas de burn rate estão definidos em `terraform/burn-rate.tf` como `datadog_monitor` do tipo `slo alert`, com query:
+
+```
+error_budget("<slo_id>").over("30d").burn_rate() > 2
+```
+
+| SLO | Burn rate threshold | Janela | Ação |
+|---|---|---|---|
+| Card Authorization Success Rate | > 2 | 30d | Ver runbook card-authorization-failure |
+| Payment Service Availability | > 2 | 30d | Ver runbook payment-service-unavailable |
+| Cross-border Transaction Success Rate | > 2 | 30d | Ver runbook cross-border-transaction-failure |
+| Workeo Disbursement Success Rate | > 2 | 30d | Ver runbook working-capital-processing-delay |
+| Keo Travel Card Creation Success Rate | > 2 | 30d | Ver runbook travel-card-creation-failure |
+
+### Referências
+- `terraform/slos.tf` — SLOs monitor-based e metric-based
+- `terraform/burn-rate.tf` — alertas de burn rate
+- Datadog: https://docs.datadoghq.com/observability/slo/burn_rate_alerts/
+
+---
+
 ## Convenção de Tags
 
 ```

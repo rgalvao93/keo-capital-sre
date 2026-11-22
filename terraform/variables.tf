@@ -30,7 +30,7 @@ variable "pagerduty_api_token" {
 }
 
 variable "pagerduty_services" {
-  description = "Map of PagerDuty service name to service key (supply via TF_VAR_pagerduty_services)"
+  description = "Map of PagerDuty service name to service key"
   type        = map(string)
   default     = {}
 }
@@ -52,4 +52,16 @@ variable "slack_channels" {
     "alerts-security",
     "alerts-sre",
   ]
+}
+
+variable "payment_api_url" {
+  description = "URL for the Payment API service"
+  type        = string
+  default     = "https://api.keo-capital.com"
+}
+
+variable "synthetics_location" {
+  description = "Default location for synthetics tests (e.g., us-east-1)"
+  type        = string
+  default     = "us-east-1"
 }

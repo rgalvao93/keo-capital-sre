@@ -1,0 +1,23 @@
+# Chaos Experiment CE-05 — CPU Stress payment-api
+# Alvo: container do payment-api
+# Hipótese: pressão de CPU não causa OOMKill nem degrada taxa de sucesso de autorização
+# Runbook: runbooks/authorization-latency-degradation.md
+# Aplicar: kubectl apply -f chaos/experiments/05-payment-api-cpu-stress.yaml
+
+apiVersion: chaos-mesh.org/v1alpha1
+kind: StressChaos
+metadata:
+  name: payment-api-cpu-stress
+  namespace: chaos-mesh
+spec:
+  mode: one
+  selector:
+    namespaces:
+      - keo-production
+    labelSelectors:
+      app: payment-api
+  stressors:
+    cpu:
+      workers: 2
+      load: 100
+  duration: "2m"

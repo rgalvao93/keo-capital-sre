@@ -1,0 +1,32 @@
+# Chaos Experiment CE-02 — Latência MongoDB (100ms)
+# Alvo: pod do mongodb
+# Hipótese: 100ms de latência no MongoDB não degrada disbursement P95 > 5s
+# Runbook: runbooks/working-capital-processing-delay.md
+# Aplicar: kubectl apply -f chaos/experiments/02-mongodb-latency.yaml
+
+apiVersion: chaos-mesh.org/v1alpha1
+kind: NetworkChaos
+metadata:
+  name: mongodb-latency
+  namespace: chaos-mesh
+spec:
+  action: delay
+  mode: all
+  selector:
+    namespaces:
+      - keo-production
+    labelSelectors:
+      app: mongodb
+  direction: to
+  target:
+    selector:
+      namespaces:
+        - keo-production
+      labelSelectors:
+        app: payment-api
+  config:
+    delay:
+      latency: "100ms"
+      jitter: "20ms"
+    correlation: 100
+  duration: "2m"

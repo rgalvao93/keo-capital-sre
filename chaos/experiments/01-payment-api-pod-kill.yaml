@@ -1,0 +1,22 @@
+# Chaos Experiment CE-01 — Pod Kill payment-api
+# Alvo: 1 pod do payment-api (replica=3)
+# Hipótese: matar 1 pod não impacta SLO de autorização
+# Runbook: runbooks/payment-service-unavailable.md
+# Aplicar: kubectl apply -f chaos/experiments/01-payment-api-pod-kill.yaml
+
+apiVersion: chaos-mesh.org/v1alpha1
+kind: PodChaos
+metadata:
+  name: payment-api-pod-kill
+  namespace: chaos-mesh
+spec:
+  action: pod-kill
+  mode: one
+  selector:
+    namespaces:
+      - keo-production
+    labelSelectors:
+      app: payment-api
+  duration: "30s"
+  scheduler:
+    cron: "@never" # Disparo manual via kubectl apply / Game Day

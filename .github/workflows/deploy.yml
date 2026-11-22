@@ -33,3 +33,18 @@ jobs:
 
       - name: Deploy with docker-compose
         run: docker compose up -d
+
+      - name: Notify Datadog of deployment
+        if: success()
+        env:
+          DD_API_KEY: ${{ secrets.DD_API_KEY }}
+        run: |
+          curl -s -X POST "https://api.datadoghq.com/api/v1/events" \
+            -H "Content-Type: application/json" \
+            -H "DD-API-KEY: ${DD_API_KEY}" \
+            -d '{
+              "title": "Keo Capital deployment",
+              "text": "Deploy completed on main branch. Commit: ${{ github.sha }}",
+              "tags": ["source:github-actions","service:keo-capital","env:prod"],
+              "alert_type": "info"
+            }'

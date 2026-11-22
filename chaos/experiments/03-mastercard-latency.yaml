@@ -1,0 +1,28 @@
+# Chaos Experiment CE-04 — Latência Mastercard via payment-api
+# Alvo: pod do payment-api (egress)
+# Hipótese: latência adicional de 500ms no path de pagamento não degrada P99 de autorização
+# Runbook: runbooks/mastercard-network-unavailable.md
+# Aplicar: kubectl apply -f chaos/experiments/03-mastercard-latency.yaml
+
+apiVersion: chaos-mesh.org/v1alpha1
+kind: NetworkChaos
+metadata:
+  name: mastercard-latency
+  namespace: chaos-mesh
+spec:
+  action: delay
+  mode: all
+  selector:
+    namespaces:
+      - keo-production
+    labelSelectors:
+      app: payment-api
+  direction: egress
+  target:
+    ipCidr: "0.0.0.0/0" # Tráfego de saída do payment-api (simula dependências externas: Mastercard)
+  config:
+    delay:
+      latency: "500ms"
+      jitter: "50ms"
+    correlation: 100
+  duration: "3m"
