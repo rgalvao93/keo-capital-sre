@@ -84,6 +84,20 @@ public class CreditService {
             .build();
 
     mongoTemplate.save(app);
+    // Outbox pattern: grava evento para entrega confiável via Kafka
+    Map<String, Object> outbox = new java.util.HashMap<>();
+    outbox.put("aggregateType", "CREDIT_APPLICATION");
+    outbox.put("aggregateId", app.getId());
+    outbox.put("eventType", "CREDIT_EVALUATION");
+    outbox.put("topic", "credit-events");
+    outbox.put("payload", app);
+    outbox.put("status", "PENDING");
+    outbox.put("attempts", 0);
+    outbox.put("lastError", null);
+    outbox.put("nextAttemptAt", Instant.now());
+    outbox.put("createdAt", Instant.now());
+    outbox.put("sentAt", null);
+    mongoTemplate.save(outbox, "outbox_events");
     kafkaTemplate.send("credit-events", app);
 
     if (approved) creditApprovalCounter.increment();
@@ -116,6 +130,20 @@ public class CreditService {
             .build();
 
     mongoTemplate.save(app);
+    // Outbox pattern
+    Map<String, Object> outbox2 = new java.util.HashMap<>();
+    outbox2.put("aggregateType", "CREDIT_APPLICATION");
+    outbox2.put("aggregateId", app.getId());
+    outbox2.put("eventType", "CREDIT_APPROVAL");
+    outbox2.put("topic", "credit-events");
+    outbox2.put("payload", app);
+    outbox2.put("status", "PENDING");
+    outbox2.put("attempts", 0);
+    outbox2.put("lastError", null);
+    outbox2.put("nextAttemptAt", Instant.now());
+    outbox2.put("createdAt", Instant.now());
+    outbox2.put("sentAt", null);
+    mongoTemplate.save(outbox2, "outbox_events");
     kafkaTemplate.send("credit-events", app);
 
     // Trilha de auditoria (PCI-DSS 10.x)
@@ -166,6 +194,19 @@ public class CreditService {
             .build();
 
     mongoTemplate.save(app);
+    Map<String, Object> outbox3 = new java.util.HashMap<>();
+    outbox3.put("aggregateType", "CREDIT_APPLICATION");
+    outbox3.put("aggregateId", app.getId());
+    outbox3.put("eventType", "WORKING_CAPITAL_REQUEST");
+    outbox3.put("topic", "credit-events");
+    outbox3.put("payload", app);
+    outbox3.put("status", "PENDING");
+    outbox3.put("attempts", 0);
+    outbox3.put("lastError", null);
+    outbox3.put("nextAttemptAt", Instant.now());
+    outbox3.put("createdAt", Instant.now());
+    outbox3.put("sentAt", null);
+    mongoTemplate.save(outbox3, "outbox_events");
     kafkaTemplate.send("credit-events", app);
 
     log.info("Working capital request: {} - {}", app.getId(), amount);
@@ -200,6 +241,19 @@ public class CreditService {
             .build();
 
     mongoTemplate.save(transaction);
+    Map<String, Object> outbox4 = new java.util.HashMap<>();
+    outbox4.put("aggregateType", "TRANSACTION");
+    outbox4.put("aggregateId", transaction.getId());
+    outbox4.put("eventType", "DISBURSEMENT");
+    outbox4.put("topic", "credit-events");
+    outbox4.put("payload", transaction);
+    outbox4.put("status", "PENDING");
+    outbox4.put("attempts", 0);
+    outbox4.put("lastError", null);
+    outbox4.put("nextAttemptAt", Instant.now());
+    outbox4.put("createdAt", Instant.now());
+    outbox4.put("sentAt", null);
+    mongoTemplate.save(outbox4, "outbox_events");
     kafkaTemplate.send("credit-events", transaction);
 
     if (success) disbursementSuccessCounter.increment();
