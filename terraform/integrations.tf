@@ -18,7 +18,7 @@ resource "datadog_integration_pagerduty_service_object" "services" {
 # --- Slack ---
 
 resource "datadog_integration_slack_channel" "channels" {
-  for_each     = toset(var.slack_channels)
+  for_each     = var.slack_account_name != "" ? toset(var.slack_channels) : toset([])
   account_name = var.slack_account_name
   channel_name = each.value
 

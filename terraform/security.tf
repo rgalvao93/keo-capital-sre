@@ -31,30 +31,30 @@ module "waf_blocked_requests" {
   tags = ["service:waf", "team:sre", "compliance:security", "severity:high"]
 }
 
-module "credit_limit_change_audit" {
-  source = "./modules/monitor"
-
-  name    = "Credit Limit Change Audit Trail - Keo Capital"
-  type    = "log alert"
-  query   = "logs(\"service:credit-service status:info \\\"credit limit changed\\\"\").rollup(\"count\").last(\"5m\") > 10"
-  message = "Mudanças em limites de crédito detectadas. Verificar audit trail e autorização. @slack-alerts-security @pagerduty-sre"
-
-  threshold_critical = 10
-  threshold_warning  = 5
-
-  tags = ["service:credit-service", "team:credit", "compliance:audit", "severity:high"]
-}
-
-module "pan_access_anomaly" {
-  source = "./modules/monitor"
-
-  name    = "PAN Access Anomaly - Keo Capital"
-  type    = "log alert"
-  query   = "logs(\"service:payment-api status:info \\\"PAN accessed\\\"\").rollup(\"count\").last(\"5m\") > 100"
-  message = "Acesso anômalo a dados de cartão (PAN) detectado. Verificar logs de auditoria PCI-DSS. @slack-alerts-security @pagerduty-sre"
-
-  threshold_critical = 100
-  threshold_warning  = 50
-
-  tags = ["service:payment-api", "team:sre", "compliance:pci-dss", "severity:critical"]
-}
+# module "credit_limit_change_audit" {
+#   source = "./modules/monitor"
+#
+#   name    = "Credit Limit Change Audit Trail - Keo Capital"
+#   type    = "log alert"
+#   query   = "logs(\"service:credit-service status:info \\\"credit limit changed\\\"\").rollup(\"count\").last(\"5m\") > 10"
+#   message = "Mudanças em limites de crédito detectadas. Verificar audit trail e autorização. @slack-alerts-security @pagerduty-sre"
+#
+#   threshold_critical = 10
+#   threshold_warning  = 5
+#
+#   tags = ["service:credit-service", "team:credit", "compliance:audit", "severity:high"]
+# }
+#
+# module "pan_access_anomaly" {
+#   source = "./modules/monitor"
+#
+#   name    = "PAN Access Anomaly - Keo Capital"
+#   type    = "log alert"
+#   query   = "logs(\"service:payment-api status:info \\\"PAN accessed\\\"\").rollup(\"count\").last(\"5m\") > 100"
+#   message = "Acesso anômalo a dados de cartão (PAN) detectado. Verificar logs de auditoria PCI-DSS. @slack-alerts-security @pagerduty-sre"
+#
+#   threshold_critical = 100
+#   threshold_warning  = 50
+#
+#   tags = ["service:payment-api", "team:sre", "compliance:pci-dss", "severity:critical"]
+# }

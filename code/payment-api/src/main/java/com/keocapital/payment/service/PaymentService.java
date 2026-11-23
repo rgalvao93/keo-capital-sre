@@ -1,6 +1,8 @@
 package com.keocapital.payment.service;
 
+import com.keocapital.common.model.Card;
 import com.keocapital.common.model.Transaction;
+import com.keocapital.common.util.AmountUtils;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
 import jakarta.annotation.PostConstruct;
@@ -71,7 +73,7 @@ public class PaymentService {
                 "customerId", "CUST-" + UUID.randomUUID().toString().substring(0, 8));
     String region = (String) request.getOrDefault("region", "latam");
     String product = (String) request.getOrDefault("product", "keo-travel");
-    Double amount = ((Number) request.getOrDefault("amount", 100.0)).doubleValue();
+    Double amount = AmountUtils.roundToCents((Number) request.getOrDefault("amount", 100.0));
 
     boolean success = Math.random() < 0.995;
     long latency = (long) (50 + Math.random() * 200);
@@ -138,6 +140,22 @@ public class PaymentService {
             .build();
 
     mongoTemplate.save(transaction);
+    if (success) {
+      Card card =
+          Card.builder()
+              .id(UUID.randomUUID().toString())
+              .type("VIRTUAL")
+              .product(product)
+              .status("ACTIVE")
+              .customerId(customerId)
+              .cardNumber("**** **** **** " + UUID.randomUUID().toString().substring(0, 4))
+              .limit(10000.0)
+              .currency("USD")
+              .createdAt(Instant.now())
+              .expiresAt(Instant.now().plusSeconds(3 * 365 * 24 * 60 * 60))
+              .build();
+      mongoTemplate.save(card);
+    }
     kafkaTemplate.send("payment-events", transaction);
 
     if (success) {
@@ -162,7 +180,7 @@ public class PaymentService {
                 "customerId", "CUST-" + UUID.randomUUID().toString().substring(0, 8));
     String region = (String) request.getOrDefault("region", "latam");
     String product = (String) request.getOrDefault("product", "supplier-payments");
-    Double amount = ((Number) request.getOrDefault("amount", 500.0)).doubleValue();
+    Double amount = AmountUtils.roundToCents((Number) request.getOrDefault("amount", 500.0));
 
     boolean success = Math.random() < 0.99;
     long latency = (long) (200 + Math.random() * 300);

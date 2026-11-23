@@ -2,6 +2,7 @@ package com.keocapital.credit.service;
 
 import com.keocapital.common.model.CreditApplication;
 import com.keocapital.common.model.Transaction;
+import com.keocapital.common.util.AmountUtils;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
 import jakarta.annotation.PostConstruct;
@@ -60,7 +61,7 @@ public class CreditService {
     String region = (String) request.getOrDefault("region", "latam");
     String product = (String) request.getOrDefault("product", "workeo");
     Double requestedAmount =
-        ((Number) request.getOrDefault("requestedAmount", 5000.0)).doubleValue();
+        AmountUtils.roundToCents((Number) request.getOrDefault("requestedAmount", 5000.0));
 
     boolean approved = Math.random() < 0.85;
     double creditScore = 300 + Math.random() * 550;
@@ -72,7 +73,10 @@ public class CreditService {
             .product(product)
             .status(approved ? "APPROVED" : "REJECTED")
             .requestedAmount(requestedAmount)
-            .approvedAmount(approved ? requestedAmount * (0.8 + Math.random() * 0.2) : 0.0)
+            .approvedAmount(
+                approved
+                    ? AmountUtils.roundToCents(requestedAmount * (0.8 + Math.random() * 0.2))
+                    : 0.0)
             .creditScore(creditScore)
             .region(region)
             .createdAt(Instant.now())
@@ -95,7 +99,7 @@ public class CreditService {
             request.getOrDefault(
                 "customerId", "CUST-" + UUID.randomUUID().toString().substring(0, 8));
     String region = (String) request.getOrDefault("region", "latam");
-    Double amount = ((Number) request.getOrDefault("amount", 5000.0)).doubleValue();
+    Double amount = AmountUtils.roundToCents((Number) request.getOrDefault("amount", 5000.0));
 
     CreditApplication app =
         CreditApplication.builder()
@@ -129,7 +133,7 @@ public class CreditService {
             request.getOrDefault(
                 "customerId", "CUST-" + UUID.randomUUID().toString().substring(0, 8));
     String region = (String) request.getOrDefault("region", "latam");
-    Double amount = ((Number) request.getOrDefault("amount", 10000.0)).doubleValue();
+    Double amount = AmountUtils.roundToCents((Number) request.getOrDefault("amount", 10000.0));
 
     CreditApplication app =
         CreditApplication.builder()
@@ -158,7 +162,7 @@ public class CreditService {
             request.getOrDefault(
                 "customerId", "CUST-" + UUID.randomUUID().toString().substring(0, 8));
     String region = (String) request.getOrDefault("region", "latam");
-    Double amount = ((Number) request.getOrDefault("amount", 10000.0)).doubleValue();
+    Double amount = AmountUtils.roundToCents((Number) request.getOrDefault("amount", 10000.0));
 
     long latency = (long) (1000 + Math.random() * 3000);
     boolean success = Math.random() < 0.99;

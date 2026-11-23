@@ -1,5 +1,20 @@
 # Dashboards — Keo Capital
 
+## Dados atualmente disponíveis
+
+Os dashboards com prefixo `[DEV]` consultam telemetria observada pelo Datadog
+APM nos serviços em `env:dev` e métricas reais do Datadog Agent. As requisições
+APM recentes incluem tráfego do `traffic-simulator`; são dados observados de
+execuções de desenvolvimento, não tráfego de clientes em produção.
+
+Todos os dashboards usam uma janela padrão de seis horas para incluir traces
+recentes, mesmo quando não houve tráfego nos últimos minutos.
+
+Não há métricas de negócio recentes suficientes para calcular aprovação de
+crédito, criação de cartões, MTTR ou disponibilidade por provedor. Por isso,
+os dashboards mostram sinais APM disponíveis e identificam explicitamente as
+métricas que não equivalem a SLOs ou indicadores de negócio.
+
 ## 1. Dashboard de Transações (Transaction Overview)
 
 ### Widgets

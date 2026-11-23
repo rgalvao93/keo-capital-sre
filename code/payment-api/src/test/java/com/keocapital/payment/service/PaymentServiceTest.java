@@ -72,6 +72,15 @@ class PaymentServiceTest {
   }
 
   @Test
+  void processPaymentRoundsAmountToTwoDecimalPlaces() {
+    when(mongoTemplate.save(any(Transaction.class))).thenAnswer(inv -> inv.getArgument(0));
+
+    Transaction result = paymentService.processPayment(Map.of("amount", 500.129));
+
+    assertThat(result.getAmount()).isEqualTo(500.13);
+  }
+
+  @Test
   void createCardReturnsTransaction() {
     when(mongoTemplate.save(any(Transaction.class))).thenAnswer(inv -> inv.getArgument(0));
 

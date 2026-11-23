@@ -14,16 +14,17 @@ spring:
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
 
 management:
+  datadog:
+    metrics:
+      export:
+        enabled: true
+        api-key: ${DD_API_KEY:}
+        step: 10s
   endpoints:
     web:
       exposure:
         include: health,info,metrics,prometheus
   metrics:
-    export:
-      datadog:
-        enabled: true
-        api-key: ${DD_API_KEY:}
-        step: 10s
     tags:
       service: credit-service
       env: ${DD_ENV:dev}

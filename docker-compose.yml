@@ -11,6 +11,7 @@ services:
       MONGO_INITDB_DATABASE: keo-capital
     volumes:
       - mongodb_data:/data/db
+      - ./mongo/init:/docker-entrypoint-initdb.d:ro
     networks:
       - keo-network
 
@@ -87,7 +88,7 @@ services:
     environment:
       SPRING_DATA_MONGODB_URI: mongodb://mongodb:27017/keo-capital
       SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:29092
-      SPRING_REDIS_HOST: redis
+      SPRING_DATA_REDIS_HOST: redis
       DD_AGENT_HOST: datadog-agent
       DD_API_KEY: ${DD_API_KEY}
       DD_SERVICE: payment-api
@@ -114,7 +115,7 @@ services:
     environment:
       SPRING_DATA_MONGODB_URI: mongodb://mongodb:27017/keo-capital
       SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:29092
-      SPRING_REDIS_HOST: redis
+      SPRING_DATA_REDIS_HOST: redis
       DD_AGENT_HOST: datadog-agent
       DD_API_KEY: ${DD_API_KEY}
       DD_SERVICE: credit-service
@@ -141,7 +142,7 @@ services:
     environment:
       SPRING_DATA_MONGODB_URI: mongodb://mongodb:27017/keo-capital
       SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:29092
-      SPRING_REDIS_HOST: redis
+      SPRING_DATA_REDIS_HOST: redis
       DD_AGENT_HOST: datadog-agent
       DD_API_KEY: ${DD_API_KEY}
       DD_SERVICE: travel-card-service
@@ -168,7 +169,7 @@ services:
     environment:
       SPRING_DATA_MONGODB_URI: mongodb://mongodb:27017/keo-capital
       SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:29092
-      SPRING_REDIS_HOST: redis
+      SPRING_DATA_REDIS_HOST: redis
       DD_AGENT_HOST: datadog-agent
       DD_API_KEY: ${DD_API_KEY}
       DD_SERVICE: cross-border-fx

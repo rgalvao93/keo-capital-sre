@@ -6,11 +6,16 @@ spring:
     name: traffic-simulator
 
 management:
+  datadog:
+    metrics:
+      export:
+        enabled: true
+        api-key: ${DD_API_KEY:}
+        step: 10s
   endpoints:
     web:
       exposure:
         include: health,info,metrics
-
 logging:
   level:
     com.keocapital: INFO

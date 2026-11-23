@@ -1,5 +1,6 @@
 package com.keocapital.blockchain.service;
 
+import com.keocapital.common.util.AmountUtils;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
 import jakarta.annotation.PostConstruct;
@@ -38,7 +39,7 @@ public class BlockchainService {
 
   public Map<String, Object> executeTransaction(Map<String, Object> request) {
     String txType = (String) request.getOrDefault("type", "PAYMENT");
-    Double amount = ((Number) request.getOrDefault("amount", 100.0)).doubleValue();
+    Double amount = AmountUtils.roundToCents((Number) request.getOrDefault("amount", 100.0));
     String from = (String) request.getOrDefault("from", "buyer");
     String to = (String) request.getOrDefault("to", "supplier");
 

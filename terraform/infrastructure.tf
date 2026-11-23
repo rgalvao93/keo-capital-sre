@@ -74,7 +74,7 @@ module "host_availability" {
   source = "./modules/monitor"
 
   name    = "Host/Container Availability - Keo Capital"
-  type    = "host"
+  type    = "metric alert"
   query   = "avg(last_5m):avg:system.uptime{*} < 1"
   message = "Host/container offline detectado. Verificar infraestrutura e escalar se necessário. @slack-alerts-infra @pagerduty-sre"
 

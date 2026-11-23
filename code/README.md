@@ -25,6 +25,18 @@ code/
 └── traffic-simulator/         # Simulador de tráfego (porta 8085)
 ```
 
+## MongoDB
+
+O banco `keo-capital` utiliza as seguintes coleções:
+
+- `customers` — clientes, região, status e produtos contratados
+- `cards` — cartões virtuais e físicos emitidos
+- `credit_applications` — avaliações e solicitações de crédito
+- `transactions` — pagamentos, autorizações, disbursements e transações internacionais
+
+O schema, os índices e os dados iniciais dos clientes são aplicados por
+[mongo/init/01-keo-schema.js](../mongo/init/01-keo-schema.js) em novas instalações.
+
 ## Como rodar
 
 ### 1. Baixar o Datadog Java Agent

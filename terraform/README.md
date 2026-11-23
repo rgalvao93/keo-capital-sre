@@ -37,6 +37,24 @@ variable "datadog_api_url" {
 }
 ```
 
+## Local credentials
+
+Copy `terraform.tfvars.example` to `terraform.tfvars` and replace the
+placeholder values with your Datadog API key and application key:
+
+```sh
+cp terraform.tfvars.example terraform.tfvars
+```
+
+Terraform automatically loads `terraform.tfvars`. The `.gitignore` excludes
+`*.tfvars` files in this directory; never commit real credentials. If a key
+has been shared in chat or another public place, revoke it and create a new one.
+
+Slack channels are only provisioned when `slack_account_name` is configured.
+Synthetic tests that send `POST` requests are disabled by default; enable them
+with `enable_post_synthetics = true` only when the configured API URL is safe
+for repeated test requests.
+
 ## Module Structure
 
 ```

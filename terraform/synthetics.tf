@@ -16,6 +16,12 @@ resource "datadog_synthetics_test" "payment_api_health" {
 
   request_headers = {}
 
+  assertion {
+    type     = "statusCode"
+    operator = "is"
+    target   = "200"
+  }
+
   options_list {
     tick_every           = 300
     min_failure_duration = 0
@@ -43,6 +49,14 @@ JSON
 
   request_headers = {
     "Content-Type" = "application/json"
+  }
+
+  count = var.enable_post_synthetics ? 1 : 0
+
+  assertion {
+    type     = "statusCode"
+    operator = "is"
+    target   = "200"
   }
 
   options_list {
@@ -74,6 +88,14 @@ JSON
     "Content-Type" = "application/json"
   }
 
+  count = var.enable_post_synthetics ? 1 : 0
+
+  assertion {
+    type     = "statusCode"
+    operator = "is"
+    target   = "200"
+  }
+
   options_list {
     tick_every           = 300
     min_failure_duration = 0
@@ -101,6 +123,14 @@ JSON
 
   request_headers = {
     "Content-Type" = "application/json"
+  }
+
+  count = var.enable_post_synthetics ? 1 : 0
+
+  assertion {
+    type     = "statusCode"
+    operator = "is"
+    target   = "200"
   }
 
   options_list {

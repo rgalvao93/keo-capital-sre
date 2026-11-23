@@ -61,7 +61,13 @@ variable "payment_api_url" {
 }
 
 variable "synthetics_location" {
-  description = "Default location for synthetics tests (e.g., us-east-1)"
+  description = "Default Datadog location ID for synthetics tests (e.g., aws:us-east-1)"
   type        = string
-  default     = "us-east-1"
+  default     = "aws:us-east-1"
+}
+
+variable "enable_post_synthetics" {
+  description = "Enable API synthetic tests that send POST requests to the configured Payment API URL"
+  type        = bool
+  default     = false
 }

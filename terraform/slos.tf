@@ -12,7 +12,7 @@ resource "datadog_service_level_objective" "card_auth_success_rate" {
   thresholds {
     timeframe = "30d"
     target    = 99.5
-    warning   = 99.0
+    warning   = 99.6
   }
 }
 
@@ -26,7 +26,7 @@ resource "datadog_service_level_objective" "payment_service_availability" {
   thresholds {
     timeframe = "30d"
     target    = 99.9
-    warning   = 99.5
+    warning   = 99.95
   }
 }
 
@@ -40,7 +40,7 @@ resource "datadog_service_level_objective" "workeo_disbursement_latency" {
   thresholds {
     timeframe = "30d"
     target    = 99.0
-    warning   = 98.0
+    warning   = 99.1
   }
 }
 
@@ -54,7 +54,7 @@ resource "datadog_service_level_objective" "keo_travel_card_creation_latency" {
   thresholds {
     timeframe = "30d"
     target    = 99.5
-    warning   = 99.0
+    warning   = 99.6
   }
 }
 
@@ -68,7 +68,7 @@ resource "datadog_service_level_objective" "crossborder_transaction_success_rate
   thresholds {
     timeframe = "30d"
     target    = 99.0
-    warning   = 98.5
+    warning   = 99.1
   }
 }
 
@@ -82,7 +82,7 @@ resource "datadog_service_level_objective" "mastercard_availability" {
   thresholds {
     timeframe = "30d"
     target    = 99.9
-    warning   = 99.5
+    warning   = 99.95
   }
 }
 
@@ -96,7 +96,7 @@ resource "datadog_service_level_objective" "bank_availability" {
   thresholds {
     timeframe = "30d"
     target    = 99.5
-    warning   = 99.0
+    warning   = 99.6
   }
 }
 
@@ -110,14 +110,14 @@ resource "datadog_service_level_objective" "card_auth_success_rate_metric" {
   tags        = ["service:payment-api", "team:payments", "product:keo-travel", "slo:card-authorization-metric"]
 
   query {
-    numerator   = "sum:keo.payments.authorization.success{*}"
-    denominator = "sum:keo.payments.authorization.success{*} + sum:keo.payments.authorization.failure{*}"
+    numerator   = "sum:keo.payments.authorization.success{*}.as_count()"
+    denominator = "sum:keo.payments.authorization.success{*}.as_count() + sum:keo.payments.authorization.failure{*}.as_count()"
   }
 
   thresholds {
     timeframe = "30d"
     target    = 99.5
-    warning   = 99.0
+    warning   = 99.6
   }
 }
 
@@ -128,14 +128,14 @@ resource "datadog_service_level_objective" "payment_service_availability_metric"
   tags        = ["service:payment-api", "team:payments", "slo:availability-metric"]
 
   query {
-    numerator   = "sum:keo.payments.processing.success{*}"
-    denominator = "sum:keo.payments.processing.success{*} + sum:keo.payments.processing.failure{*}"
+    numerator   = "sum:keo.payments.processing.success{*}.as_count()"
+    denominator = "sum:keo.payments.processing.success{*}.as_count() + sum:keo.payments.processing.failure{*}.as_count()"
   }
 
   thresholds {
     timeframe = "30d"
     target    = 99.9
-    warning   = 99.5
+    warning   = 99.95
   }
 }
 
@@ -146,14 +146,14 @@ resource "datadog_service_level_objective" "crossborder_transaction_success_rate
   tags        = ["service:cross-border-fx", "team:payments", "product:cross-border", "slo:cross-border-success-metric"]
 
   query {
-    numerator   = "sum:keo.crossborder.transaction.success{*}"
-    denominator = "sum:keo.crossborder.transaction.success{*} + sum:keo.crossborder.transaction.failure{*}"
+    numerator   = "sum:keo.crossborder.transaction.success{*}.as_count()"
+    denominator = "sum:keo.crossborder.transaction.success{*}.as_count() + sum:keo.crossborder.transaction.failure{*}.as_count()"
   }
 
   thresholds {
     timeframe = "30d"
     target    = 99.0
-    warning   = 98.5
+    warning   = 99.1
   }
 }
 
@@ -164,14 +164,14 @@ resource "datadog_service_level_objective" "workeo_disbursement_success_rate_met
   tags        = ["service:credit-service", "team:credit", "product:workeo", "slo:disbursement-success-metric"]
 
   query {
-    numerator   = "sum:keo.working_capital.disbursement.success{*}"
-    denominator = "sum:keo.working_capital.disbursement.success{*} + sum:keo.working_capital.disbursement.failure{*}"
+    numerator   = "sum:keo.working_capital.disbursement.success{*}.as_count()"
+    denominator = "sum:keo.working_capital.disbursement.success{*}.as_count() + sum:keo.working_capital.disbursement.failure{*}.as_count()"
   }
 
   thresholds {
     timeframe = "30d"
     target    = 99.0
-    warning   = 98.0
+    warning   = 99.1
   }
 }
 
@@ -182,13 +182,13 @@ resource "datadog_service_level_objective" "keo_travel_card_creation_success_rat
   tags        = ["service:travel-card-service", "team:travel", "product:keo-travel", "slo:card-creation-success-metric"]
 
   query {
-    numerator   = "sum:keo.travel.card_creation.success{*}"
-    denominator = "sum:keo.travel.card_creation.success{*} + sum:keo.travel.card_creation.failure{*}"
+    numerator   = "sum:keo.travel.card_creation.success{*}.as_count()"
+    denominator = "sum:keo.travel.card_creation.success{*}.as_count() + sum:keo.travel.card_creation.failure{*}.as_count()"
   }
 
   thresholds {
     timeframe = "30d"
     target    = 99.5
-    warning   = 99.0
+    warning   = 99.6
   }
 }

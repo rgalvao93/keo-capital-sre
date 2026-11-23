@@ -77,7 +77,7 @@ public class TrafficSimulatorService {
   private void simulateCardAuthorization() {
     String region = randomRegion();
     String product = randomProduct();
-    double amount = 50 + random.nextDouble() * 450;
+    double amount = randomAmount(50, 450);
 
     webClientBuilder
         .build()
@@ -118,7 +118,7 @@ public class TrafficSimulatorService {
 
   private void simulatePaymentProcessing() {
     String region = randomRegion();
-    double amount = 100 + random.nextDouble() * 900;
+    double amount = randomAmount(100, 900);
 
     webClientBuilder
         .build()
@@ -155,7 +155,7 @@ public class TrafficSimulatorService {
                 "product",
                 "workeo",
                 "requestedAmount",
-                1000 + random.nextDouble() * 9000))
+                randomAmount(1000, 9000)))
         .retrieve()
         .bodyToMono(String.class)
         .subscribe(
@@ -177,7 +177,7 @@ public class TrafficSimulatorService {
                 "product",
                 "workeo",
                 "amount",
-                5000 + random.nextDouble() * 45000))
+                randomAmount(5000, 45000)))
         .retrieve()
         .bodyToMono(String.class)
         .subscribe(
@@ -199,7 +199,7 @@ public class TrafficSimulatorService {
                 "toRegion",
                 randomRegion(),
                 "amount",
-                1000 + random.nextDouble() * 9000,
+                randomAmount(1000, 9000),
                 "currency",
                 "USD"))
         .retrieve()
@@ -235,5 +235,9 @@ public class TrafficSimulatorService {
 
   private String randomProduct() {
     return PRODUCTS.get(random.nextInt(PRODUCTS.size()));
+  }
+
+  private double randomAmount(double minimum, double range) {
+    return Math.round((minimum + random.nextDouble() * range) * 100) / 100.0;
   }
 }

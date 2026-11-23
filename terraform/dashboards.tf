@@ -3,30 +3,33 @@
 
 resource "datadog_dashboard_json" "transaction_overview" {
   dashboard = jsonencode({
-    title       = "Transaction Overview - Keo Capital"
-    description = "Dashboard de transações para Keo Capital"
-    layout_type = "ordered"
-    tags        = ["team:payments"]
+    title              = "[DEV] Transaction Overview - Keo Capital"
+    description        = "Telemetria APM observada em env:dev; inclui tráfego de desenvolvimento e não representa tráfego de produção."
+    default_timeframe  = { type = "live", value = 6, unit = "hour" }
+    notify_list        = null
+    layout_type        = "ordered"
+    tags               = ["team:payments"]
+    template_variables = null
     widgets = [
       {
         definition = {
           type     = "timeseries"
-          title    = "Volume de Transações"
-          requests = [{ q = "sum:keo.payments.authorization.volume{*}" }]
+          title    = "Requisições Payment API"
+          requests = [{ q = "sum:trace.servlet.request.hits{service:payment-api,env:dev}" }]
         }
       },
       {
         definition = {
           type     = "query_value"
-          title    = "Taxa de Sucesso"
-          requests = [{ q = "avg:keo.payments.authorization.success_rate{*}" }]
+          title    = "Sucesso de Requisições (%)"
+          requests = [{ q = "(1 - sum:trace.servlet.request.errors{service:payment-api,env:dev}.as_count() / sum:trace.servlet.request.hits{service:payment-api,env:dev}.as_count()) * 100" }]
         }
       },
       {
         definition = {
           type     = "timeseries"
-          title    = "Latência P99"
-          requests = [{ q = "p99:keo.payments.authorization.latency{*}" }]
+          title    = "Latência P99 (ms)"
+          requests = [{ q = "p99:trace.servlet.request{service:payment-api,env:dev} * 1000" }]
         }
       }
     ]
@@ -35,10 +38,13 @@ resource "datadog_dashboard_json" "transaction_overview" {
 
 resource "datadog_dashboard_json" "infrastructure_health" {
   dashboard = jsonencode({
-    title       = "Infrastructure Health - Keo Capital"
-    description = "Dashboard de infraestrutura"
-    layout_type = "ordered"
-    tags        = ["team:sre"]
+    title              = "[DEV] Infrastructure Health - Keo Capital"
+    description        = "Métricas reais do Datadog Agent e erros APM de env:dev; não representam infraestrutura de produção."
+    default_timeframe  = { type = "live", value = 6, unit = "hour" }
+    notify_list        = null
+    layout_type        = "ordered"
+    tags               = ["team:sre"]
+    template_variables = null
     widgets = [
       {
         definition = {
@@ -58,7 +64,7 @@ resource "datadog_dashboard_json" "infrastructure_health" {
         definition = {
           type     = "timeseries"
           title    = "Error Rate 5xx"
-          requests = [{ q = "sum:http.requests{status:5xx}.as_rate() / sum:http.requests{*}.as_rate() * 100" }]
+          requests = [{ q = "sum:trace.servlet.request.errors{env:dev}.as_count() / sum:trace.servlet.request.hits{env:dev}.as_count() * 100" }]
         }
       }
     ]
@@ -67,44 +73,47 @@ resource "datadog_dashboard_json" "infrastructure_health" {
 
 resource "datadog_dashboard_json" "slo_compliance" {
   dashboard = jsonencode({
-    title       = "SLO Compliance - Keo Capital"
-    description = "Dashboard de SLOs"
-    layout_type = "ordered"
-    tags        = ["team:sre"]
+    title              = "[DEV] APM Service Reliability - Keo Capital"
+    description        = "Indicadores calculados de traces APM em env:dev; são sinais de serviço, não SLOs de produção."
+    default_timeframe  = { type = "live", value = 6, unit = "hour" }
+    notify_list        = null
+    layout_type        = "ordered"
+    tags               = ["team:sre"]
+    template_variables = null
     widgets = [
       {
         definition = {
           type     = "query_value"
-          title    = "Card Auth Success Rate"
-          requests = [{ q = "avg:keo.payments.authorization.success_rate{*}" }]
+          title    = "Payment API Request Success (%)"
+          requests = [{ q = "(1 - sum:trace.servlet.request.errors{service:payment-api,env:dev}.as_count() / sum:trace.servlet.request.hits{service:payment-api,env:dev}.as_count()) * 100" }]
         }
       },
       {
         definition = {
           type     = "query_value"
-          title    = "Payment Service Availability"
-          requests = [{ q = "avg:keo.payments.service.success_rate{*}" }]
+          title    = "Credit Service Request Success (%)"
+          requests = [{ q = "(1 - sum:trace.servlet.request.errors{service:credit-service,env:dev}.as_count() / sum:trace.servlet.request.hits{service:credit-service,env:dev}.as_count()) * 100" }]
         }
       },
       {
         definition = {
           type     = "query_value"
-          title    = "Workeo Disbursement Latency P95"
-          requests = [{ q = "p95:keo.working_capital.disbursement.latency{*}" }]
+          title    = "Travel Card Service Request Success (%)"
+          requests = [{ q = "(1 - sum:trace.servlet.request.errors{service:travel-card-service,env:dev}.as_count() / sum:trace.servlet.request.hits{service:travel-card-service,env:dev}.as_count()) * 100" }]
         }
       },
       {
         definition = {
           type     = "query_value"
-          title    = "Keo Travel Card Creation P95"
-          requests = [{ q = "p95:keo.travel.card_creation.latency{*}" }]
+          title    = "Cross-border Service Request Success (%)"
+          requests = [{ q = "(1 - sum:trace.servlet.request.errors{service:cross-border-fx,env:dev}.as_count() / sum:trace.servlet.request.hits{service:cross-border-fx,env:dev}.as_count()) * 100" }]
         }
       },
       {
         definition = {
           type     = "query_value"
-          title    = "Cross-border Success Rate"
-          requests = [{ q = "avg:keo.crossborder.transaction.success_rate{*}" }]
+          title    = "Requisições APM (todos os serviços)"
+          requests = [{ q = "sum:trace.servlet.request.hits{env:dev}" }]
         }
       }
     ]
@@ -113,30 +122,33 @@ resource "datadog_dashboard_json" "slo_compliance" {
 
 resource "datadog_dashboard_json" "incident_management" {
   dashboard = jsonencode({
-    title       = "Incident Management - Keo Capital"
-    description = "Dashboard de gestão de incidentes"
-    layout_type = "ordered"
-    tags        = ["team:sre"]
+    title              = "[DEV] Incident Signals - Keo Capital"
+    description        = "Erros e volume de requisições APM reais em env:dev; não há métricas de incidentes ou MTTR disponíveis."
+    default_timeframe  = { type = "live", value = 6, unit = "hour" }
+    notify_list        = null
+    layout_type        = "ordered"
+    tags               = ["team:sre"]
+    template_variables = null
     widgets = [
       {
         definition = {
           type     = "timeseries"
-          title    = "MTTR SEV-1"
-          requests = [{ q = "avg:keo.incidents.mttr{severity:sev1}" }]
+          title    = "Erros APM por Serviço"
+          requests = [{ q = "sum:trace.servlet.request.errors{env:dev} by {service}" }]
         }
       },
       {
         definition = {
           type     = "timeseries"
-          title    = "MTTD"
-          requests = [{ q = "avg:keo.incidents.mttd{*}" }]
+          title    = "Requisições APM por Serviço"
+          requests = [{ q = "sum:trace.servlet.request.hits{env:dev} by {service}" }]
         }
       },
       {
         definition = {
           type     = "query_value"
-          title    = "Alert Fatigue Rate"
-          requests = [{ q = "avg:keo.alerts.false_positive_rate{*}" }]
+          title    = "Taxa Global de Erros APM (%)"
+          requests = [{ q = "sum:trace.servlet.request.errors{env:dev}.as_count() / sum:trace.servlet.request.hits{env:dev}.as_count() * 100" }]
         }
       }
     ]
@@ -145,30 +157,33 @@ resource "datadog_dashboard_json" "incident_management" {
 
 resource "datadog_dashboard_json" "workeo" {
   dashboard = jsonencode({
-    title       = "Workeo - Working Capital - Keo Capital"
-    description = "Dashboard do Workeo"
-    layout_type = "ordered"
-    tags        = ["team:credit"]
+    title              = "[DEV] Workeo - Working Capital - Keo Capital"
+    description        = "Telemetria APM real do credit-service em env:dev; não equivale a métricas de negócio ou tráfego de produção."
+    default_timeframe  = { type = "live", value = 6, unit = "hour" }
+    notify_list        = null
+    layout_type        = "ordered"
+    tags               = ["team:credit"]
+    template_variables = null
     widgets = [
       {
         definition = {
           type     = "query_value"
-          title    = "Taxa de Aprovação de Crédito"
-          requests = [{ q = "avg:keo.credit.approval_rate{product:workeo}" }]
+          title    = "Requisições do Credit Service"
+          requests = [{ q = "sum:trace.servlet.request.hits{service:credit-service,env:dev}" }]
         }
       },
       {
         definition = {
           type     = "timeseries"
-          title    = "Tempo de Processamento (P95)"
-          requests = [{ q = "p95:keo.working_capital.disbursement.latency{*}" }]
+          title    = "Sucesso de Requisições (%)"
+          requests = [{ q = "(1 - sum:trace.servlet.request.errors{service:credit-service,env:dev}.as_count() / sum:trace.servlet.request.hits{service:credit-service,env:dev}.as_count()) * 100" }]
         }
       },
       {
         definition = {
           type     = "timeseries"
-          title    = "Volume de Solicitações"
-          requests = [{ q = "sum:keo.working_capital.request.volume{*}" }]
+          title    = "Latência APM P95 (ms)"
+          requests = [{ q = "p95:trace.servlet.request{service:credit-service,env:dev} * 1000" }]
         }
       }
     ]
@@ -177,30 +192,33 @@ resource "datadog_dashboard_json" "workeo" {
 
 resource "datadog_dashboard_json" "keo_travel" {
   dashboard = jsonencode({
-    title       = "Keo Travel - Corporate Travel - Keo Capital"
-    description = "Dashboard do Keo Travel"
-    layout_type = "ordered"
-    tags        = ["team:travel"]
+    title              = "[DEV] Keo Travel - Corporate Travel - Keo Capital"
+    description        = "Telemetria APM real do travel-card-service em env:dev; não equivale a métricas de negócio ou tráfego de produção."
+    default_timeframe  = { type = "live", value = 6, unit = "hour" }
+    notify_list        = null
+    layout_type        = "ordered"
+    tags               = ["team:travel"]
+    template_variables = null
     widgets = [
       {
         definition = {
           type     = "timeseries"
-          title    = "Criação de Cartão (P95)"
-          requests = [{ q = "p95:keo.travel.card_creation.latency{*}" }]
+          title    = "Requisições do Travel Card Service"
+          requests = [{ q = "sum:trace.servlet.request.hits{service:travel-card-service,env:dev}" }]
         }
       },
       {
         definition = {
           type     = "query_value"
-          title    = "Taxa de Sucesso de Criação"
-          requests = [{ q = "avg:keo.travel.card_creation.success_rate{*}" }]
+          title    = "Sucesso de Requisições (%)"
+          requests = [{ q = "(1 - sum:trace.servlet.request.errors{service:travel-card-service,env:dev}.as_count() / sum:trace.servlet.request.hits{service:travel-card-service,env:dev}.as_count()) * 100" }]
         }
       },
       {
         definition = {
           type     = "timeseries"
-          title    = "Volume de Transações"
-          requests = [{ q = "sum:keo.travel.transaction.volume{*}" }]
+          title    = "Latência APM P95 (ms)"
+          requests = [{ q = "p95:trace.servlet.request{service:travel-card-service,env:dev} * 1000" }]
         }
       }
     ]
@@ -209,30 +227,33 @@ resource "datadog_dashboard_json" "keo_travel" {
 
 resource "datadog_dashboard_json" "cross_border" {
   dashboard = jsonencode({
-    title       = "Cross-border - Keo Capital"
-    description = "Dashboard de cross-border"
-    layout_type = "ordered"
-    tags        = ["team:payments"]
+    title              = "[DEV] Cross-border - Keo Capital"
+    description        = "Telemetria APM real do cross-border-fx em env:dev; não equivale a métricas de negócio ou tráfego de produção."
+    default_timeframe  = { type = "live", value = 6, unit = "hour" }
+    notify_list        = null
+    layout_type        = "ordered"
+    tags               = ["team:payments"]
+    template_variables = null
     widgets = [
       {
         definition = {
           type     = "query_value"
-          title    = "Taxa de Sucesso de Transações"
-          requests = [{ q = "avg:keo.crossborder.transaction.success_rate{*}" }]
+          title    = "Sucesso de Requisições (%)"
+          requests = [{ q = "(1 - sum:trace.servlet.request.errors{service:cross-border-fx,env:dev}.as_count() / sum:trace.servlet.request.hits{service:cross-border-fx,env:dev}.as_count()) * 100" }]
         }
       },
       {
         definition = {
           type     = "timeseries"
-          title    = "Latência de Transação (P99)"
-          requests = [{ q = "p99:keo.crossborder.transaction.latency{*}" }]
+          title    = "Latência APM P95 (ms)"
+          requests = [{ q = "p95:trace.servlet.request{service:cross-border-fx,env:dev} * 1000" }]
         }
       },
       {
         definition = {
           type     = "timeseries"
-          title    = "Taxa de Erro de Câmbio"
-          requests = [{ q = "avg:keo.crossborder.fx.error_rate{*}" }]
+          title    = "Requisições do Cross-border Service"
+          requests = [{ q = "sum:trace.servlet.request.hits{service:cross-border-fx,env:dev}" }]
         }
       }
     ]
@@ -241,37 +262,33 @@ resource "datadog_dashboard_json" "cross_border" {
 
 resource "datadog_dashboard_json" "external_dependencies" {
   dashboard = jsonencode({
-    title       = "External Dependencies - Keo Capital"
-    description = "Dashboard de dependências externas"
-    layout_type = "ordered"
-    tags        = ["team:sre"]
+    title              = "[DEV] Outbound Dependencies - Keo Capital"
+    description        = "Chamadas de saída observadas no traffic-simulator e execuções do Synthetic Test; não há métricas reais por provedor externo."
+    default_timeframe  = { type = "live", value = 6, unit = "hour" }
+    notify_list        = null
+    layout_type        = "ordered"
+    tags               = ["team:sre"]
+    template_variables = null
     widgets = [
       {
         definition = {
           type     = "query_value"
-          title    = "Mastercard Availability"
-          requests = [{ q = "avg:keo.external.mastercard.availability{*}" }]
+          title    = "Chamadas de Saída (traffic-simulator)"
+          requests = [{ q = "sum:trace.netty.client.request.hits{service:traffic-simulator,env:dev}" }]
         }
       },
       {
         definition = {
           type     = "timeseries"
-          title    = "Mastercard Latency (P99)"
-          requests = [{ q = "p99:keo.external.mastercard.latency{*}" }]
+          title    = "Latência P95 de Chamadas de Saída (ms)"
+          requests = [{ q = "p95:trace.netty.client.request{service:traffic-simulator,env:dev} * 1000" }]
         }
       },
       {
         definition = {
           type     = "query_value"
-          title    = "Bank Availability"
-          requests = [{ q = "avg:keo.external.bank.availability{*}" }]
-        }
-      },
-      {
-        definition = {
-          type     = "query_value"
-          title    = "FX Provider Availability"
-          requests = [{ q = "avg:keo.external.fx.availability{*}" }]
+          title    = "Execuções do Synthetic Test"
+          requests = [{ q = "sum:synthetics.test_runs{test_name:keo_capital_-_payment_api_health}" }]
         }
       }
     ]

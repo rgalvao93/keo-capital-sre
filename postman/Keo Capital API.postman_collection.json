@@ -1,0 +1,328 @@
+{
+  "info": {
+    "_postman_id": "bd6e76b0-59ac-4e27-91c3-9cfc5b2fd1ec",
+    "name": "Keo Capital API",
+    "description": "Local development collection for the Keo Capital services. Requests use synthetic demo data. Set the base URL variables to target another environment.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Payment API",
+      "item": [
+        {
+          "name": "Authorize card",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customerId\": \"CUST-1001\",\n  \"region\": \"latam\",\n  \"product\": \"keo-travel\",\n  \"amount\": 125.50\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{paymentApi}}/api/v1/card/authorize"
+          }
+        },
+        {
+          "name": "Create card",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customerId\": \"CUST-1001\",\n  \"region\": \"latam\",\n  \"product\": \"keo-travel\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{paymentApi}}/api/v1/card/create"
+          }
+        },
+        {
+          "name": "Get card by ID",
+          "request": {
+            "method": "GET",
+            "url": "{{paymentApi}}/api/v1/card/{{transactionId}}"
+          }
+        },
+        {
+          "name": "Process payment (round to cents)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customerId\": \"CUST-1002\",\n  \"region\": \"latam\",\n  \"product\": \"supplier-payments\",\n  \"amount\": 500.129\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{paymentApi}}/api/v1/payment/process"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const transaction = pm.response.json();",
+                  "pm.test('amount is rounded to two decimal places', function () {",
+                  "    pm.expect(transaction.amount).to.eql(500.13);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get payment status",
+          "request": {
+            "method": "GET",
+            "url": "{{paymentApi}}/api/v1/payment/{{transactionId}}/status"
+          }
+        },
+        {
+          "name": "Health",
+          "request": {
+            "method": "GET",
+            "url": "{{paymentApi}}/api/v1/health"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Credit Service",
+      "item": [
+        {
+          "name": "Evaluate credit",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customerId\": \"CUST-2001\",\n  \"region\": \"latam\",\n  \"product\": \"workeo\",\n  \"requestedAmount\": 5000.00\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{creditService}}/api/v1/credit/evaluate"
+          }
+        },
+        {
+          "name": "Approve credit",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customerId\": \"CUST-2001\",\n  \"region\": \"latam\",\n  \"amount\": 5000.00\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{creditService}}/api/v1/credit/approve"
+          }
+        },
+        {
+          "name": "Get credit status",
+          "request": {
+            "method": "GET",
+            "url": "{{creditService}}/api/v1/credit/{{applicationId}}/status"
+          }
+        },
+        {
+          "name": "Request working capital",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customerId\": \"CUST-2002\",\n  \"region\": \"latam\",\n  \"amount\": 10000.00\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{creditService}}/api/v1/working-capital/request"
+          }
+        },
+        {
+          "name": "Disburse working capital",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customerId\": \"CUST-2002\",\n  \"region\": \"latam\",\n  \"amount\": 10000.00\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{creditService}}/api/v1/working-capital/disburse"
+          }
+        },
+        {
+          "name": "Health",
+          "request": {
+            "method": "GET",
+            "url": "{{creditService}}/api/v1/health"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Travel Card Service",
+      "item": [
+        {
+          "name": "Create travel card",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customerId\": \"CUST-3001\",\n  \"region\": \"latam\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{travelCardService}}/api/v1/travel/card/create"
+          }
+        },
+        {
+          "name": "Get card by ID",
+          "request": {
+            "method": "GET",
+            "url": "{{travelCardService}}/api/v1/travel/card/{{cardId}}"
+          }
+        },
+        {
+          "name": "Create travel transaction",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customerId\": \"CUST-3001\",\n  \"region\": \"latam\",\n  \"amount\": 200.00\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{travelCardService}}/api/v1/travel/transaction"
+          }
+        },
+        {
+          "name": "Get report",
+          "request": {
+            "method": "GET",
+            "url": "{{travelCardService}}/api/v1/travel/report"
+          }
+        },
+        {
+          "name": "Health",
+          "request": {
+            "method": "GET",
+            "url": "{{travelCardService}}/api/v1/travel/health"
+          }
+        },
+        {
+          "name": "Travel health route",
+          "request": {
+            "method": "GET",
+            "url": "{{travelCardService}}/api/v1/travel/travel/health"
+          }
+        },
+        {
+          "name": "API health",
+          "request": {
+            "method": "GET",
+            "url": "{{travelCardService}}/api/v1/health"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Cross-border FX",
+      "item": [
+        {
+          "name": "Convert currency",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"from\": \"USD\",\n  \"to\": \"BRL\",\n  \"amount\": 1000.00\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{crossBorderFx}}/api/v1/fx/convert"
+          }
+        },
+        {
+          "name": "Get FX rate",
+          "request": {
+            "method": "GET",
+            "url": "{{crossBorderFx}}/api/v1/fx/rate?from=USD&to=BRL"
+          }
+        },
+        {
+          "name": "Create cross-border transaction",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customerId\": \"CUST-4001\",\n  \"fromRegion\": \"latam\",\n  \"toRegion\": \"canada\",\n  \"amount\": 2500.00,\n  \"currency\": \"USD\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{crossBorderFx}}/api/v1/crossborder/transaction"
+          }
+        },
+        {
+          "name": "Health",
+          "request": {
+            "method": "GET",
+            "url": "{{crossBorderFx}}/api/v1/health"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Blockchain Mock",
+      "item": [
+        {
+          "name": "Execute blockchain transaction",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"type\": \"PAYMENT\",\n  \"amount\": 100.00,\n  \"from\": \"buyer\",\n  \"to\": \"supplier\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{blockchainMock}}/api/v1/blockchain/execute"
+          }
+        },
+        {
+          "name": "Get transaction status",
+          "request": {
+            "method": "GET",
+            "url": "{{blockchainMock}}/api/v1/blockchain/status/{{txHash}}"
+          }
+        },
+        {
+          "name": "Health",
+          "request": {
+            "method": "GET",
+            "url": "{{blockchainMock}}/api/v1/blockchain/health"
+          }
+        },
+        {
+          "name": "Blockchain health route",
+          "request": {
+            "method": "GET",
+            "url": "{{blockchainMock}}/api/v1/blockchain/blockchain/health"
+          }
+        },
+        {
+          "name": "API health",
+          "request": {
+            "method": "GET",
+            "url": "{{blockchainMock}}/api/v1/health"
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    { "key": "paymentApi", "value": "http://localhost:8080" },
+    { "key": "creditService", "value": "http://localhost:8081" },
+    { "key": "travelCardService", "value": "http://localhost:8082" },
+    { "key": "crossBorderFx", "value": "http://localhost:8083" },
+    { "key": "blockchainMock", "value": "http://localhost:8084" },
+    { "key": "transactionId", "value": "PASTE_TRANSACTION_ID" },
+    { "key": "applicationId", "value": "PASTE_APPLICATION_ID" },
+    { "key": "cardId", "value": "PASTE_CARD_ID" },
+    { "key": "txHash", "value": "PASTE_TX_HASH" }
+  ]
+}

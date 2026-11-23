@@ -1,6 +1,7 @@
 package com.keocapital.crossborder.service;
 
 import com.keocapital.common.model.Transaction;
+import com.keocapital.common.util.AmountUtils;
 import io.micrometer.core.instrument.Counter;
 import io.micrometer.core.instrument.MeterRegistry;
 import jakarta.annotation.PostConstruct;
@@ -54,11 +55,11 @@ public class CrossBorderService {
   public Map<String, Object> convertCurrency(Map<String, Object> request) {
     String from = (String) request.getOrDefault("from", "USD");
     String to = (String) request.getOrDefault("to", "BRL");
-    Double amount = ((Number) request.getOrDefault("amount", 1000.0)).doubleValue();
+    Double amount = AmountUtils.roundToCents((Number) request.getOrDefault("amount", 1000.0));
 
     double baseRate = getBaseRate(from, to);
     double rate = baseRate * (0.995 + Math.random() * 0.01);
-    double convertedAmount = amount * rate;
+    double convertedAmount = AmountUtils.roundToCents(amount * rate);
 
     long latency = (long) (50 + Math.random() * 100);
     boolean success = Math.random() < 0.995;
@@ -96,7 +97,7 @@ public class CrossBorderService {
                 "customerId", "CUST-" + UUID.randomUUID().toString().substring(0, 8));
     String fromRegion = (String) request.getOrDefault("fromRegion", "latam");
     String toRegion = (String) request.getOrDefault("toRegion", "canada");
-    Double amount = ((Number) request.getOrDefault("amount", 1000.0)).doubleValue();
+    Double amount = AmountUtils.roundToCents((Number) request.getOrDefault("amount", 1000.0));
     String currency = (String) request.getOrDefault("currency", "USD");
 
     boolean success = Math.random() < 0.99;
