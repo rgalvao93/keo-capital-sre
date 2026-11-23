@@ -73,8 +73,9 @@ jobs:
         run: |
           for dir in code/*/; do
             if [ -f "$dir/Dockerfile" ]; then
-              echo "Building $dir"
-              docker build -t "keo-capital/$(basename $dir):latest" "$dir"
+              svc=$(basename "$dir")
+              echo "Building $svc"
+              docker build -t "keo-capital/$svc:latest" -f "$dir/Dockerfile" .
             fi
           done
 
