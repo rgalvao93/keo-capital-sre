@@ -5,6 +5,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 import com.keocapital.common.model.CreditApplication;
+import com.keocapital.common.model.KycVerification;
 import com.keocapital.common.model.Transaction;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
@@ -62,6 +63,13 @@ class CreditServiceIntegrationTest {
     assertThat(stored).isNotNull();
     assertThat(stored.getRequestedAmount()).isEqualTo(5000.0);
     assertThat(stored.getStatus()).isIn("APPROVED", "REJECTED");
+    assertThat(stored.getKycVerificationId()).isNotNull();
+
+    KycVerification verification =
+        mongoTemplate.findById(stored.getKycVerificationId(), KycVerification.class);
+    assertThat(verification).isNotNull();
+    assertThat(verification.getApplicationId()).isEqualTo(stored.getId());
+    assertThat(verification.getStatus()).isIn("APPROVED", "REJECTED");
     verify(kafkaTemplate).send("credit-events", result);
   }
 

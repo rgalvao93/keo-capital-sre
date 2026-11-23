@@ -6,6 +6,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.keocapital.common.model.CreditApplication;
+import com.keocapital.common.model.KycVerification;
 import com.keocapital.common.model.Transaction;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import java.util.Map;
@@ -37,10 +38,19 @@ class CreditServiceTest {
   @Test
   void evaluateCreditReturnsApplication() {
     when(mongoTemplate.save(any(CreditApplication.class))).thenAnswer(inv -> inv.getArgument(0));
+    when(mongoTemplate.save(any(KycVerification.class)))
+        .thenAnswer(
+            inv -> {
+              KycVerification verification = inv.getArgument(0);
+              verification.setId("KYC-" + verification.getApplicationId());
+              return verification;
+            });
     CreditApplication result = creditService.evaluateCredit(Map.of("requestedAmount", 5000.0));
     assertThat(result).isNotNull();
     assertThat(result.getRequestedAmount()).isEqualTo(5000.0);
+    assertThat(result.getKycVerificationId()).isNotNull();
     verify(mongoTemplate).save(any(CreditApplication.class));
+    verify(mongoTemplate).save(any(KycVerification.class));
   }
 
   @Test

@@ -1,6 +1,7 @@
 package com.keocapital.credit.service;
 
 import com.keocapital.common.model.CreditApplication;
+import com.keocapital.common.model.KycVerification;
 import com.keocapital.common.model.Transaction;
 import com.keocapital.common.util.AmountUtils;
 import io.micrometer.core.instrument.Counter;
@@ -12,6 +13,8 @@ import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
@@ -101,6 +104,32 @@ public class CreditService {
             .updatedAt(Instant.now())
             .build();
 
+    long kycLatencyMs = (long) (50 + Math.random() * 700);
+    String kycStatus = app.getStatus().equals("APPROVED") ? "APPROVED" : "REJECTED";
+    String riskLevel = creditScore >= 650 ? "LOW" : (creditScore >= 450 ? "MEDIUM" : "HIGH");
+
+    KycVerification verification =
+        KycVerification.builder()
+            .customerId(customerId)
+            .applicationId(app.getId())
+            .provider("kyc-provider-x")
+            .status(kycStatus)
+            .riskLevel(riskLevel)
+            .checks(
+                java.util.List.of(
+                    KycVerification.KycCheck.builder()
+                        .name("document")
+                        .result(kycStatus.equals("APPROVED") ? "PASS" : "FAIL")
+                        .score(kycStatus.equals("APPROVED") ? 0.98 : 0.42)
+                        .build()))
+            .providerRequestId("KYC-" + UUID.randomUUID())
+            .latencyMs(kycLatencyMs)
+            .errorCode(null)
+            .createdAt(Instant.now())
+            .build();
+
+    verification = mongoTemplate.save(verification);
+    app.setKycVerificationId(verification.getId());
     mongoTemplate.save(app);
     // Outbox pattern: grava evento para entrega confiável via Kafka
     Map<String, Object> outbox = new java.util.HashMap<>();
@@ -117,6 +146,8 @@ public class CreditService {
     outbox.put("sentAt", null);
     mongoTemplate.save(outbox, "outbox_events");
     kafkaTemplate.send("credit-events", app);
+
+    meterRegistry.counter("keo.external.kyc.status", "kyc.status", kycStatus).increment();
 
     if (approved) creditApprovalCounter.increment();
     else creditRejectionCounter.increment();
@@ -187,6 +218,33 @@ public class CreditService {
 
   public CreditApplication getCreditStatus(String id) {
     return mongoTemplate.findById(id, CreditApplication.class);
+  }
+
+  public Map<String, Object> getCreditStatusSummary(String applicationId) {
+    CreditApplication application = mongoTemplate.findById(applicationId, CreditApplication.class);
+    if (application == null) {
+      return null;
+    }
+
+    KycVerification verification = null;
+    if (application.getKycVerificationId() != null) {
+      verification =
+          mongoTemplate.findById(application.getKycVerificationId(), KycVerification.class);
+    } else {
+      verification =
+          mongoTemplate.findOne(
+              Query.query(Criteria.where("applicationId").is(applicationId)),
+              KycVerification.class);
+    }
+
+    return Map.of(
+        "applicationId", applicationId,
+        "status", application.getStatus(),
+        "creditScore", application.getCreditScore(),
+        "kycStatus", verification == null ? "PENDING" : verification.getStatus(),
+        "kycRiskLevel", verification == null ? "UNKNOWN" : verification.getRiskLevel(),
+        "kycLatencyMs", verification == null ? 0L : verification.getLatencyMs(),
+        "kycProviderRequestId", verification == null ? "" : verification.getProviderRequestId());
   }
 
   public CreditApplication requestWorkingCapital(Map<String, Object> request) {

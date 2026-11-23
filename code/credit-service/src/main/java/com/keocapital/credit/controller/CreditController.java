@@ -29,9 +29,12 @@ public class CreditController {
   }
 
   @GetMapping("/credit/{id}/status")
-  public ResponseEntity<CreditApplication> getCreditStatus(@PathVariable String id) {
-    CreditApplication app = creditService.getCreditStatus(id);
-    return ResponseEntity.ok(app);
+  public ResponseEntity<Map<String, Object>> getCreditStatus(@PathVariable String id) {
+    Map<String, Object> summary = creditService.getCreditStatusSummary(id);
+    if (summary == null) {
+      return ResponseEntity.notFound().build();
+    }
+    return ResponseEntity.ok(summary);
   }
 
   @PostMapping("/working-capital/request")
