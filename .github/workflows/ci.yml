@@ -33,7 +33,7 @@ jobs:
           path: '**/target/surefire-reports/*.txt'
 
       - name: Notify Datadog of CI result
-        if: always()
+        if: always() && secrets.DD_API_KEY != ''
         env:
           DD_API_KEY: ${{ secrets.DD_API_KEY }}
         run: |
@@ -45,7 +45,7 @@ jobs:
               \"title\": \"CI pipeline ${STATUS}\",
               \"text\": \"Build/test on ${{ github.ref }}. Commit: ${{ github.sha }}\",
               \"tags\": [\"source:github-actions\",\"ci:${STATUS}\"],
-              \"alert_type\": \"${STATUS == 'success' && 'info' || 'error'}\"
+              \"alert_type\": \"${{ job.status == 'success' && 'info' || 'error' }}\"
             }"
 
   terraform-validate:
