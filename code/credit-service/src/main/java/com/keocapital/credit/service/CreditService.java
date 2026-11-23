@@ -118,6 +118,22 @@ public class CreditService {
     mongoTemplate.save(app);
     kafkaTemplate.send("credit-events", app);
 
+    // Trilha de auditoria (PCI-DSS 10.x)
+    Map<String, Object> auditEvent = new java.util.HashMap<>();
+    auditEvent.put("eventType", "CREDIT_LIMIT_CHANGE");
+    auditEvent.put("actor", Map.of("id", "credit-service", "type", "SERVICE", "ip", "127.0.0.1"));
+    auditEvent.put("resource", Map.of("type", "CREDIT_APPLICATION", "id", app.getId()));
+    auditEvent.put("customerId", customerId);
+    auditEvent.put("before", Map.of());
+    auditEvent.put("after", Map.of("approvedAmount", amount));
+    auditEvent.put("panTouched", false);
+    auditEvent.put("outcome", "SUCCESS");
+    auditEvent.put("correlationId", UUID.randomUUID().toString());
+    auditEvent.put("service", "credit-service");
+    auditEvent.put("region", region);
+    auditEvent.put("createdAt", Instant.now());
+    mongoTemplate.save(auditEvent, "audit_events");
+
     creditApprovalCounter.increment();
     log.info("Credit approved: {} - {}", app.getId(), amount);
     return app;
