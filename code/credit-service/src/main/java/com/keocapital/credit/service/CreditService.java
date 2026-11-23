@@ -66,9 +66,26 @@ public class CreditService {
     boolean approved = Math.random() < 0.85;
     double creditScore = 300 + Math.random() * 550;
 
+    String appId = UUID.randomUUID().toString();
+    String kycId = UUID.randomUUID().toString();
+    // Persiste resultado KYC
+    Map<String, Object> kyc = new java.util.HashMap<>();
+    kyc.put("_id", kycId);
+    kyc.put("customerId", customerId);
+    kyc.put("applicationId", appId);
+    kyc.put("provider", "kyc-provider-x");
+    kyc.put("status", approved ? "APPROVED" : "REJECTED");
+    kyc.put("riskLevel", approved ? "LOW" : "HIGH");
+    kyc.put("checks", java.util.List.of(Map.of("name", "document", "result", approved ? "PASS" : "FAIL", "score", creditScore / 1000.0)));
+    kyc.put("providerRequestId", UUID.randomUUID().toString());
+    kyc.put("latencyMs", (long) (200 + Math.random() * 300));
+    kyc.put("errorCode", approved ? null : "RISK_HIGH");
+    kyc.put("createdAt", Instant.now());
+    mongoTemplate.save(kyc, "kyc_verifications");
+
     CreditApplication app =
         CreditApplication.builder()
-            .id(UUID.randomUUID().toString())
+            .id(appId)
             .customerId(customerId)
             .product(product)
             .status(approved ? "APPROVED" : "REJECTED")
@@ -79,6 +96,7 @@ public class CreditService {
                     : 0.0)
             .creditScore(creditScore)
             .region(region)
+            .kycVerificationId(kycId)
             .createdAt(Instant.now())
             .updatedAt(Instant.now())
             .build();

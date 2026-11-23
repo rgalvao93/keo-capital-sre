@@ -22,6 +22,7 @@ public class CreditApplication {
   private Double approvedAmount;
   private Double creditScore;
   private String region;
+  private String kycVerificationId;
   private Instant createdAt;
   private Instant updatedAt;
 }
