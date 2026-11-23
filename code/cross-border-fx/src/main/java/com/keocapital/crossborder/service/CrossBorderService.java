@@ -135,6 +135,18 @@ public class CrossBorderService {
 
   private double getBaseRate(String from, String to) {
     if (from.equals(to)) return 1.0;
+    // Busca taxa vigente na collection fx_rates (fallback para hardcode)
+    try {
+      org.springframework.data.mongodb.core.query.Query q =
+          new org.springframework.data.mongodb.core.query.Query(
+              org.springframework.data.mongodb.core.query.Criteria.where("_id").is(from + "-" + to));
+      Map<String, Object> doc = mongoTemplate.findOne(q, Map.class, "fx_rates");
+      if (doc != null && doc.get("rate") instanceof Number) {
+        return ((Number) doc.get("rate")).doubleValue();
+      }
+    } catch (Exception e) {
+      log.warn("fx_rates lookup failed, using hardcoded: {}", e.getMessage());
+    }
     if (from.equals("USD") && to.equals("BRL")) return 5.0;
     if (from.equals("USD") && to.equals("CAD")) return 1.35;
     if (from.equals("USD") && to.equals("EUR")) return 0.92;
