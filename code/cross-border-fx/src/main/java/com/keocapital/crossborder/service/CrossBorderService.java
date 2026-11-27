@@ -139,7 +139,8 @@ public class CrossBorderService {
     try {
       org.springframework.data.mongodb.core.query.Query q =
           new org.springframework.data.mongodb.core.query.Query(
-              org.springframework.data.mongodb.core.query.Criteria.where("_id").is(from + "-" + to));
+              org.springframework.data.mongodb.core.query.Criteria.where("_id")
+                  .is(from + "-" + to));
       Map<String, Object> doc = mongoTemplate.findOne(q, Map.class, "fx_rates");
       if (doc != null && doc.get("rate") instanceof Number) {
         return ((Number) doc.get("rate")).doubleValue();
