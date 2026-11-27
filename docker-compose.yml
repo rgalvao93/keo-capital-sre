@@ -12,6 +12,14 @@ services:
     volumes:
       - mongodb_data:/data/db
       - ./mongo/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      # Só considera saudável depois que o init terminou: durante o bootstrap o
+      # entrypoint sobe um mongod temporário em 127.0.0.1 (pidfile abaixo).
+      test: ["CMD-SHELL", "test ! -f /tmp/docker-entrypoint-temp-mongod.pid && mongosh --quiet --eval 'db.adminCommand({ping:1}).ok' | grep -q 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 30s
     networks:
       - keo-network
 

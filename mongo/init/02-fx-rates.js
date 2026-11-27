@@ -5,7 +5,9 @@ if (!database.getCollectionNames().includes("fx_rates")) {
 }
 
 database.fx_rates.createIndex({ from: 1, to: 1, validFrom: -1 });
-database.fx_rates.createIndex({ _id: 1 }, { unique: true });
+// O índice _id já é criado automaticamente e é único por definição.
+// Recriá-lo com { unique: true } é inválido no MongoDB 7 e faz o entrypoint
+// do container abortar (o que derruba o serviço no `docker compose up --wait`).
 
 const now = new Date();
 database.fx_rates.insertMany([

@@ -42,6 +42,7 @@ Regras para não regredir:
 - O `.github/dependabot.yml` ignora bumps *major* de Spring Boot e springdoc; bumps do stack Spring são agrupados em um único PR.
 - Cada serviço tem um `*ApplicationTests` com `@SpringBootTest` (`contextLoads`) que valida a subida do contexto; o CI também roda um **smoke test** (`docker compose up --wait` + health checks em `/actuator/health`).
 - O `blockchain-mock` não usa Redis; seu health check de Redis está desabilitado (`management.health.redis.enabled=false`) porque o módulo `common` traz o starter transitivamente.
+- Os scripts de `mongo/init/` só rodam quando o volume `mongodb_data` está **vazio**. Se um script falhar, o entrypoint do Mongo aborta e o container sai — os serviços passam a falhar com `UnknownHostException: mongodb`. Para reproduzir o CI, teste com `docker compose down -v` antes do `up`.
 
 ## Referências rápidas
 
