@@ -30,14 +30,16 @@ Matriz de versões do stack Java (não alterar isoladamente — ver `pom.xml`):
 
 | Componente | Versão | Observação |
 |---|---|---|
-| Spring Boot (parent) | 3.2.0 | Base do projeto |
-| springdoc-openapi | 2.3.0 | **3.x exige Spring Boot 4.x** — incompatível |
-| Micrometer | 1.12.x (BOM) | versão gerenciada pelo Spring Boot |
+| Spring Boot (parent) | 3.5.16 | Base do projeto (série 3.x) |
+| springdoc-openapi | 2.10.1 | Série 2.x (compatível com Spring Boot 3.x). **3.x exige Spring Boot 4.x** — incompatível |
+| MongoDB Java Driver | 5.5.2 | Gerenciado pelo Spring Boot (não sobrescrever `mongodb.version`) |
+| Micrometer | gerenciado pelo Spring Boot | versão gerenciada pelo Spring Boot |
 | Java | 21 | — |
 
 Regras para não regredir:
 
-- **Nunca** subir o `springdoc-openapi-starter-webmvc-ui` para 3.x enquanto o Spring Boot estiver em 3.2.x. O springdoc 3.x puxa artefatos do Spring Boot 4.x e quebra o contexto (erro `EndpointCondition must be used on @Bean methods`).
+- **Nunca** subir o `springdoc-openapi-starter-webmvc-ui` para 3.x enquanto o Spring Boot estiver na série 3.x. O springdoc 3.x puxa artefatos do Spring Boot 4.x e quebra o contexto (erro `EndpointCondition must be used on @Bean methods`).
+- **Não sobrescrever** a propriedade `mongodb.version`: o Spring Boot 3.5 importa o BOM `org.mongodb:mongodb-driver-bom` usando essa propriedade; um valor antigo (ex.: 4.11.0) quebra a resolução. Deixe o Spring Boot gerenciar.
 - O `maven-enforcer-plugin` (no `pom.xml`) **falha o build** se aparecer qualquer `org.springframework.boot:*:4.x` ou `org.springdoc:*:3.x` na árvore de dependências.
 - O `.github/dependabot.yml` ignora bumps *major* de Spring Boot e springdoc; bumps do stack Spring são agrupados em um único PR.
 - Cada serviço tem um `*ApplicationTests` com `@SpringBootTest` (`contextLoads`) que valida a subida do contexto; o CI também roda um **smoke test** (`docker compose up --wait` + health checks em `/actuator/health`).
