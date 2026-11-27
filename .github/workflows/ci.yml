@@ -33,10 +33,14 @@ jobs:
           path: '**/target/surefire-reports/*.txt'
 
       - name: Notify Datadog of CI result
-        if: always() && secrets.DD_API_KEY != ''
+        if: always()
         env:
           DD_API_KEY: ${{ secrets.DD_API_KEY }}
         run: |
+          if [ -z "${DD_API_KEY}" ]; then
+            echo "DD_API_KEY não configurada; pulando notificação ao Datadog."
+            exit 0
+          fi
           STATUS="${{ job.status }}"
           curl -s -X POST "https://api.datadoghq.com/api/v1/events" \
             -H "Content-Type: application/json" \
