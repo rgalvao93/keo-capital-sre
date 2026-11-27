@@ -79,7 +79,16 @@ public class CreditService {
     kyc.put("provider", "kyc-provider-x");
     kyc.put("status", approved ? "APPROVED" : "REJECTED");
     kyc.put("riskLevel", approved ? "LOW" : "HIGH");
-    kyc.put("checks", java.util.List.of(Map.of("name", "document", "result", approved ? "PASS" : "FAIL", "score", creditScore / 1000.0)));
+    kyc.put(
+        "checks",
+        java.util.List.of(
+            Map.of(
+                "name",
+                "document",
+                "result",
+                approved ? "PASS" : "FAIL",
+                "score",
+                creditScore / 1000.0)));
     kyc.put("providerRequestId", UUID.randomUUID().toString());
     kyc.put("latencyMs", (long) (200 + Math.random() * 300));
     kyc.put("errorCode", approved ? null : "RISK_HIGH");

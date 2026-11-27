@@ -79,6 +79,34 @@ jobs:
             fi
           done
 
+  runtime-smoke:
+    runs-on: ubuntu-latest
+    needs: docker-build
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Start full stack and wait for healthchecks
+        env:
+          DD_API_KEY: ${{ secrets.DD_API_KEY }}
+        run: docker compose up -d --build --wait --wait-timeout 300
+
+      - name: Verify service health endpoints
+        run: |
+          set -euo pipefail
+          for port in 8080 8081 8082 8083 8084; do
+            echo "Checking http://localhost:${port}/actuator/health"
+            curl -fsS --retry 10 --retry-delay 3 --retry-connrefused \
+              "http://localhost:${port}/actuator/health" | grep -q '"status":"UP"'
+          done
+
+      - name: Dump container logs on failure
+        if: failure()
+        run: docker compose logs --no-color
+
+      - name: Tear down stack
+        if: always()
+        run: docker compose down -v
+
   terraform:
     runs-on: ubuntu-latest
     needs: build-and-test

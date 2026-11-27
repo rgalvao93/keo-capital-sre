@@ -9,6 +9,22 @@ updates:
     labels:
       - "dependencies"
       - "maven"
+    ignore:
+      # Spring Boot 4.x exige migração completa (Jakarta/API). Manter 3.2.x.
+      # Ver matriz de compatibilidade em AGENTS.md.
+      - dependency-name: "org.springframework.boot:spring-boot-starter-parent"
+        update-types:
+          - "version-update:semver-major"
+      # springdoc 3.x depende do Spring Boot 4.x. Manter 2.3.x enquanto estivermos no 3.2.x.
+      - dependency-name: "org.springdoc:springdoc-openapi-starter-webmvc-ui"
+        update-types:
+          - "version-update:semver-major"
+    groups:
+      # Agrupa Spring Boot + springdoc para que bumps sejam revisados juntos.
+      spring-stack:
+        patterns:
+          - "org.springframework*"
+          - "org.springdoc*"
 
   - package-ecosystem: "docker"
     directory: "/"

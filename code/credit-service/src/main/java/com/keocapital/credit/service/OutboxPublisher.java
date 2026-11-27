@@ -23,13 +23,15 @@ public class OutboxPublisher {
 
   @Scheduled(fixedDelay = 5000)
   public void publishPending() {
-    Query q = new Query(Criteria.where("status").is("PENDING").and("nextAttemptAt").lte(Instant.now()));
+    Query q =
+        new Query(Criteria.where("status").is("PENDING").and("nextAttemptAt").lte(Instant.now()));
     List<Map> pending = mongoTemplate.find(q, Map.class, "outbox_events");
     for (Map<String, Object> e : pending) {
       String id = String.valueOf(e.get("_id"));
       String topic = String.valueOf(e.get("topic"));
       Object payload = e.get("payload");
-      int attempts = e.get("attempts") instanceof Number ? ((Number) e.get("attempts")).intValue() : 0;
+      int attempts =
+          e.get("attempts") instanceof Number ? ((Number) e.get("attempts")).intValue() : 0;
       try {
         kafkaTemplate.send(topic, payload).get();
         mongoTemplate.updateFirst(

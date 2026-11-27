@@ -2,6 +2,7 @@ package com.keocapital.credit.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -45,12 +46,18 @@ class CreditServiceTest {
               verification.setId("KYC-" + verification.getApplicationId());
               return verification;
             });
+    when(mongoTemplate.save(any(Map.class), eq("kyc_verifications")))
+        .thenAnswer(inv -> inv.getArgument(0));
+    when(mongoTemplate.save(any(Map.class), eq("outbox_events")))
+        .thenAnswer(inv -> inv.getArgument(0));
     CreditApplication result = creditService.evaluateCredit(Map.of("requestedAmount", 5000.0));
     assertThat(result).isNotNull();
     assertThat(result.getRequestedAmount()).isEqualTo(5000.0);
     assertThat(result.getKycVerificationId()).isNotNull();
     verify(mongoTemplate).save(any(CreditApplication.class));
     verify(mongoTemplate).save(any(KycVerification.class));
+    verify(mongoTemplate).save(any(Map.class), eq("kyc_verifications"));
+    verify(mongoTemplate).save(any(Map.class), eq("outbox_events"));
   }
 
   @Test

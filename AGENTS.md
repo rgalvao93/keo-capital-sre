@@ -24,6 +24,25 @@ Keo Capital SRE — projeto de observabilidade e gestão de incidentes com Datad
 - Issues fechadas: #1 a #10 (todas as camadas de observabilidade implementadas).
 - Novos runbooks/monitors devem seguir o padrão dos arquivos existentes em `monitors/` e `runbooks/`.
 
+## Dependências e compatibilidade
+
+Matriz de versões do stack Java (não alterar isoladamente — ver `pom.xml`):
+
+| Componente | Versão | Observação |
+|---|---|---|
+| Spring Boot (parent) | 3.2.0 | Base do projeto |
+| springdoc-openapi | 2.3.0 | **3.x exige Spring Boot 4.x** — incompatível |
+| Micrometer | 1.12.x (BOM) | versão gerenciada pelo Spring Boot |
+| Java | 21 | — |
+
+Regras para não regredir:
+
+- **Nunca** subir o `springdoc-openapi-starter-webmvc-ui` para 3.x enquanto o Spring Boot estiver em 3.2.x. O springdoc 3.x puxa artefatos do Spring Boot 4.x e quebra o contexto (erro `EndpointCondition must be used on @Bean methods`).
+- O `maven-enforcer-plugin` (no `pom.xml`) **falha o build** se aparecer qualquer `org.springframework.boot:*:4.x` ou `org.springdoc:*:3.x` na árvore de dependências.
+- O `.github/dependabot.yml` ignora bumps *major* de Spring Boot e springdoc; bumps do stack Spring são agrupados em um único PR.
+- Cada serviço tem um `*ApplicationTests` com `@SpringBootTest` (`contextLoads`) que valida a subida do contexto; o CI também roda um **smoke test** (`docker compose up --wait` + health checks em `/actuator/health`).
+- O `blockchain-mock` não usa Redis; seu health check de Redis está desabilitado (`management.health.redis.enabled=false`) porque o módulo `common` traz o starter transitivamente.
+
 ## Referências rápidas
 
 - `README.md` — visão geral do projeto e estrutura.
