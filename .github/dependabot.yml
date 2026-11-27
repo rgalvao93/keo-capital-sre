@@ -27,13 +27,16 @@ updates:
           - "org.springdoc*"
 
   - package-ecosystem: "docker"
-    directory: "/"
+    directories: ["/code/*"]
     schedule:
       interval: "weekly"
       day: "monday"
     labels:
       - "dependencies"
       - "docker"
+    groups:
+      base-images:
+        patterns: ["*"]
 
   - package-ecosystem: "github-actions"
     directory: "/"
