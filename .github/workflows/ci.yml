@@ -89,9 +89,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Download Datadog Java agent
+        run: |
+          VERSION=$(grep -oP '(?<=<dd-trace.version>)[^<]+' pom.xml)
+          curl -fsSL -o dd-java-agent.jar \
+            "https://github.com/DataDog/dd-trace-java/releases/download/v${VERSION}/dd-java-agent-${VERSION}.jar"
+          ls -lh dd-java-agent.jar
+
       - name: Start full stack and wait for healthchecks
         env:
-          DD_API_KEY: ${{ secrets.DD_API_KEY }}
+          # Usa o secret se existir; senão um dummy para o agente subir no smoke test
+          # (o healthcheck do agente não valida a chave contra a API do Datadog).
+          DD_API_KEY: ${{ secrets.DD_API_KEY || '00000000000000000000000000000000' }}
         run: docker compose up -d --build --wait --wait-timeout 300
 
       - name: Verify service health endpoints
